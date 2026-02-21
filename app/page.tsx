@@ -1,65 +1,138 @@
 import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/lib/supabase";
 
-export default function Home() {
+export default async function HomePage() {
+
+  const today = new Date().toISOString().split("T")[0];
+
+  const { data: nextEvent } = await supabase
+    .from("events")
+    .select("*")
+    .gte("date", today)
+    .order("date", { ascending: true })
+    .limit(1)
+    .single();
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
+    <div>
+
+      {/* HERO */}
+      <section className="relative h-[80vh] w-full">
+
         <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
+          src="/guinguette/Guinguette1_HD.png"
+          alt="Bienvenue à la guinguette du Père Chapuis"
+          fill
+          className="object-cover"
           priority
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+
+        <div className="absolute inset-0 bg-black/30"></div>
+
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-6">
+          <h1 className="text-5xl font-semibold mb-6">
+            Bienvenue à la guinguette du Père Chapuis
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+
+          <p className="text-lg mb-8 max-w-xl">
+            Une parenthèse conviviale au bord du Loir,
+            à Seiches-sur-le-Loir.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+
+          <Link
+            href="/reservation"
+            className="bg-white text-stone-800 px-6 py-3 rounded-xl hover:bg-stone-100 transition"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            Réserver une table
+          </Link>
         </div>
-      </main>
+
+      </section>
+
+      {/* PROCHAIN ÉVÉNEMENT */}
+      {nextEvent && (
+        <section className="py-32 bg-stone-50 border-t border-stone-200">
+          <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
+
+            {/* IMAGE */}
+            {nextEvent.image_file && (
+              <div className="relative overflow-hidden rounded-2xl group">
+                <Image
+                  src={`/events/${nextEvent.image_file}`}
+                  alt={nextEvent.title}
+                  width={1200}
+                  height={800}
+                  className="w-full h-[450px] object-cover transition duration-500 group-hover:scale-105"
+                />
+              </div>
+            )}
+
+            {/* CONTENU */}
+            <div className="space-y-6">
+
+              <p className="text-sm uppercase tracking-wider text-stone-500">
+                Prochain événement
+              </p>
+
+              {/* DATE GRAPHIQUE */}
+              <div className="space-y-2">
+                <p className="text-l uppercase tracking-wider text-stone-500">
+                  {new Date(nextEvent.date).toLocaleDateString("fr-FR", {
+                    weekday: "short",
+                  })}
+                </p>
+
+                <div className="flex items-end gap-4">
+                  <div className="text-5xl font-semibold">
+                    {new Date(nextEvent.date).getDate()}
+                  </div>
+
+                  <div className="text-l text-stone-500">
+                    {new Date(nextEvent.date).toLocaleDateString("fr-FR", {
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              <h2 className="text-3xl font-semibold tracking-tight">
+                {nextEvent.title}
+              </h2>
+
+              <p className="text-stone-600">
+                {nextEvent.service === "MIDI" && "Service du midi 🌞"}
+                {nextEvent.service === "SOIR" && "Service du soir 🌙"}
+                {nextEvent.service === "ALL" && "Midi 🌞 & Soir 🌙"}
+
+                {nextEvent.heure_debut && (
+                  <> – à partir de {nextEvent.heure_debut.slice(0, 5)}</>
+                )}
+              </p>
+
+              <Link
+                href={`/reservation?date=${nextEvent.date}&event=${encodeURIComponent(nextEvent.title)}&service=${nextEvent.service}`}
+              >
+                <Button className="mt-2">
+                  Réserver 🍽️
+                </Button>
+              </Link>
+
+              <div className="pt-6">
+                <Link
+                  href="/planning"
+                  className="text-sm text-stone-500 hover:text-stone-800 transition"
+                >
+                  Voir tout le planning →
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
     </div>
   );
 }
