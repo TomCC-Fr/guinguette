@@ -1,4 +1,10 @@
 import ReservationClient from "./ReservationClient";
+import { redirect } from "next/navigation";
+import { FEATURES } from "@/lib/features";
+
+if (!FEATURES.RESERVATION) {
+  redirect("/");
+}
 
 export const dynamic = "force-dynamic";
 

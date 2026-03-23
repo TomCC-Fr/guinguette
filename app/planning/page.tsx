@@ -3,6 +3,12 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 import { Youtube, Music } from "lucide-react";
+import { redirect } from "next/navigation";
+import { FEATURES } from "@/lib/features";
+
+if (!FEATURES.PLANNING) {
+  redirect("/");
+}
 
 export const dynamic = "force-dynamic";
 
@@ -89,10 +95,10 @@ function formatTime(time: string | null) {
                     alt={event.title}
                     width={900}
                     height={600}
-                    className="w-full h-[380px] object-cover transition duration-500 group-hover:scale-105"
+                    className="w-full h-44 md:h-[380px] object-cover transition duration-500 group-hover:scale-105"
                   />
                 ) : (
-                  <div className="w-full h-[380px] bg-stone-50 border border-stone-200 rounded-2xl" />
+                  <div className="w-full h-44 md:h-[380px] bg-stone-50 border border-stone-200 rounded-2xl" />
                 )}
 
               </div>

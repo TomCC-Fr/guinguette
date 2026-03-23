@@ -3,7 +3,7 @@ import { supabase } from "@/lib/supabase";
 import { Resend } from "resend";
 
 const MAX_CAPACITY = {
-  MIDI: 5,
+  MIDI: 20,
   SOIR: 40,
 };
 

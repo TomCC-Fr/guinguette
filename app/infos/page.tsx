@@ -1,4 +1,10 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { redirect } from "next/navigation";
+import { FEATURES } from "@/lib/features";
+
+if (!FEATURES.INFOS) {
+  redirect("/");
+}
 
 export default function InfosPage() {
   return (

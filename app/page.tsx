@@ -19,7 +19,7 @@ export default async function HomePage() {
     <div>
 
       {/* HERO */}
-      <section className="relative h-[80vh] w-full">
+      <section className="relative h-[70vh] md:h-[80vh] w-full">
 
         <Image
           src="/guinguette/Guinguette1_HD.png"
@@ -32,11 +32,11 @@ export default async function HomePage() {
         <div className="absolute inset-0 bg-black/30"></div>
 
         <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-6">
-          <h1 className="text-5xl font-semibold mb-6">
+          <h1 className="text-3xl md:text-5xl font-semibold mb-6">
             Bienvenue à la guinguette du Père Chapuis
           </h1>
 
-          <p className="text-lg mb-8 max-w-xl">
+          <p className="text-base md:text-lg mb-8 max-w-xl">
             Une parenthèse conviviale au bord du Loir,
             à Seiches-sur-le-Loir.
           </p>
@@ -53,8 +53,8 @@ export default async function HomePage() {
 
       {/* PROCHAIN ÉVÉNEMENT */}
       {nextEvent && (
-        <section className="py-32 bg-stone-50 border-t border-stone-200">
-          <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
+        <section className="py-20 md:py-32 bg-stone-50 border-t border-stone-200">
+          <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 md:gap-16 items-center">
 
             {/* IMAGE */}
             {nextEvent.image_file && (
@@ -64,7 +64,7 @@ export default async function HomePage() {
                   alt={nextEvent.title}
                   width={1200}
                   height={800}
-                  className="w-full h-[450px] object-cover transition duration-500 group-hover:scale-105"
+                  className="w-full h-52 md:h-[450px] object-cover transition duration-500 group-hover:scale-105"
                 />
               </div>
             )}
@@ -76,7 +76,6 @@ export default async function HomePage() {
                 Prochain événement
               </p>
 
-              {/* DATE GRAPHIQUE */}
               <div className="space-y-2">
                 <p className="text-l uppercase tracking-wider text-stone-500">
                   {new Date(nextEvent.date).toLocaleDateString("fr-FR", {
@@ -85,7 +84,7 @@ export default async function HomePage() {
                 </p>
 
                 <div className="flex items-end gap-4">
-                  <div className="text-5xl font-semibold">
+                  <div className="text-4xl md:text-5xl font-semibold">
                     {new Date(nextEvent.date).getDate()}
                   </div>
 
@@ -98,7 +97,7 @@ export default async function HomePage() {
                 </div>
               </div>
 
-              <h2 className="text-3xl font-semibold tracking-tight">
+              <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">
                 {nextEvent.title}
               </h2>
 

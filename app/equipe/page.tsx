@@ -1,5 +1,10 @@
 import Image from "next/image";
+import { redirect } from "next/navigation";
+import { FEATURES } from "@/lib/features";
 
+if (!FEATURES.EQUIPE) {
+  redirect("/");
+}
 function PersonCard({
   name,
   role,

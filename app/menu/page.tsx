@@ -2,6 +2,12 @@ import { supabasePublic } from "@/lib/supabase-public";
 import Link from "next/link";
 import { Suspense } from "react";
 import AnimatedMenuContent from "./AnimatedMenuContent";
+import { redirect } from "next/navigation";
+import { FEATURES } from "@/lib/features";
+
+if (!FEATURES.MENU) {
+  redirect("/");
+}
 
 export const dynamic = "force-dynamic";
 
