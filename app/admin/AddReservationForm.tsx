@@ -11,23 +11,49 @@ export default function AddReservationForm({
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-    const [form, setForm] = useState({
+  const [form, setForm] = useState({
     nom: "",
+    email: "", // ✅ AJOUT
     telephone: "",
     date: defaultDate,
     service: "SOIR",
-    heure: "19:30", // valeur par défaut
+    heure: "19:30",
     personnes: 2,
-    });
+  });
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    await fetch("/api/admin/create", {
+    setLoading(true);
+
+    const res = await fetch("/api/admin/create", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify(form),
+    });
+
+    const result = await res.json();
+
+    setLoading(false);
+
+    if (!res.ok) {
+      alert("Erreur : " + result.error);
+      return;
+    }
+
+    // reset
+    setForm({
+      nom: "",
+      email: "",
+      telephone: "",
+      date: defaultDate,
+      service: "SOIR",
+      heure: "19:30",
+      personnes: 2,
     });
 
     setOpen(false);
@@ -54,7 +80,7 @@ export default function AddReservationForm({
       </button>
 
       {open && (
-        <div className="mt-6 transition-all duration-300">
+        <div className="mt-6">
           <form onSubmit={handleSubmit} className="space-y-4">
 
             <div className="grid md:grid-cols-3 gap-4">
@@ -62,15 +88,29 @@ export default function AddReservationForm({
               <input
                 placeholder="Nom"
                 required
+                value={form.nom}
                 className="border rounded px-3 py-2"
                 onChange={(e) =>
                   setForm({ ...form, nom: e.target.value })
                 }
               />
 
+              {/* ✅ EMAIL AJOUTÉ */}
+              <input
+                type="email"
+                placeholder="Email"
+                required
+                value={form.email}
+                className="border rounded px-3 py-2"
+                onChange={(e) =>
+                  setForm({ ...form, email: e.target.value })
+                }
+              />
+
               <input
                 placeholder="Téléphone"
                 required
+                value={form.telephone}
                 className="border rounded px-3 py-2"
                 onChange={(e) =>
                   setForm({ ...form, telephone: e.target.value })
@@ -90,48 +130,48 @@ export default function AddReservationForm({
                 className="border rounded px-3 py-2"
                 value={form.service}
                 onChange={(e) => {
-                    const newService = e.target.value;
-                    setForm({
+                  const newService = e.target.value;
+                  setForm({
                     ...form,
                     service: newService,
                     heure: newService === "MIDI" ? "12:30" : "19:30",
-                    });
+                  });
                 }}
-                >
+              >
                 <option value="MIDI">MIDI</option>
                 <option value="SOIR">SOIR</option>
-                </select>
+              </select>
 
+              {/* ✅ UN SEUL INPUT HEURE */}
               <input
-                placeholder="Heure (ex: 19:30)"
+                type="time"
+                value={form.heure}
                 className="border rounded px-3 py-2"
                 onChange={(e) =>
                   setForm({ ...form, heure: e.target.value })
                 }
               />
-                <input
-                value={form.heure}
-                placeholder="Heure"
-                className="border rounded px-3 py-2"
-                onChange={(e) =>
-                    setForm({ ...form, heure: e.target.value })
-                }
-                />
 
               <input
                 type="number"
-                placeholder="Personnes"
                 min={1}
+                value={form.personnes}
                 className="border rounded px-3 py-2"
                 onChange={(e) =>
-                  setForm({ ...form, personnes: Number(e.target.value) })
+                  setForm({
+                    ...form,
+                    personnes: Number(e.target.value),
+                  })
                 }
               />
 
             </div>
 
-            <button className="bg-emerald-700 text-white px-5 py-2 rounded-lg hover:bg-emerald-600 transition">
-              Ajouter
+            <button
+              disabled={loading}
+              className="bg-emerald-700 text-white px-5 py-2 rounded-lg hover:bg-emerald-600 transition"
+            >
+              {loading ? "Ajout..." : "Ajouter"}
             </button>
 
           </form>

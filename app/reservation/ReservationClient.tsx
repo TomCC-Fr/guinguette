@@ -101,7 +101,7 @@ export default function ReservationClient({
     return times;
   }
 
-  const midiTimes = generateTimes("11:45", "13:00");
+  const midiTimes = generateTimes("12:00", "13:30");
   const soirTimes = generateTimes("19:00", "21:00");
 
   const availableTimes =

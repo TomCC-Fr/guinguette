@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Link from "next/link";
 import PageTransition from "@/components/PageTransition";
+import Header from "@/components/Header";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -30,57 +30,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-neutral-50 text-stone-800`}
       >
-        {/* HEADER */}
-        <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-stone-200">
-          <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-            <Link href="/" className="text-xl font-bold">
-              La guinguette du Père Chapuis
-            </Link>
+        {/* ✅ HEADER UNIQUE */}
+        <Header />
 
-            <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-              <Link href="/" className="hover:text-amber-600 transition-colors">
-                Accueil
-              </Link>
-
-              <Link
-                href="/reservation"
-                className="bg-stone-800 text-white px-4 py-1.5 rounded-xl hover:bg-stone-700 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"
-              >
-                Réserver
-              </Link>
-
-              <Link
-                href="/planning"
-                className="hover:text-amber-600 transition-colors"
-              >
-                Planning
-              </Link>
-
-              <Link
-                href="/menu"
-                className="hover:text-stone-600 transition-colors"
-              >
-                La carte
-              </Link>
-
-              <Link
-                href="/equipe"
-                className="hover:text-amber-600 transition-colors"
-              >
-                Équipe
-              </Link>
-
-              <Link
-                href="/infos"
-                className="hover:text-amber-600 transition-colors"
-              >
-                Infos
-              </Link>
-            </nav>
-          </div>
-        </header>
-
-        {/* CONTENU AVEC TRANSITION */}
+        {/* CONTENU */}
         <main className="min-h-[70vh]">
           <PageTransition>{children}</PageTransition>
         </main>
