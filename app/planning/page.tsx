@@ -6,10 +6,6 @@ import { Youtube, Music } from "lucide-react";
 import { redirect } from "next/navigation";
 import { FEATURES } from "@/lib/features";
 
-if (!FEATURES.PLANNING) {
-  redirect("/");
-}
-
 export const dynamic = "force-dynamic";
 
 export default async function PlanningPage() {
@@ -33,6 +29,9 @@ export default async function PlanningPage() {
 function formatTime(time: string | null) {
   if (!time) return "";
   return time.slice(0, 5); // "20:30:00" → "20:30"
+}
+if (!FEATURES.PLANNING) {
+  redirect("/");
 }
 
   return (

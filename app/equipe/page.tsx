@@ -2,9 +2,6 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import { FEATURES } from "@/lib/features";
 
-if (!FEATURES.EQUIPE) {
-  redirect("/");
-}
 function PersonCard({
   name,
   role,
@@ -52,6 +49,11 @@ function PersonCard({
 }
 
 export default function EquipePage() {
+  
+  if (!FEATURES.EQUIPE) {
+    redirect("/");
+  }
+  
   return (
     <div className="min-h-screen bg-white py-24 px-6">
       <div className="max-w-6xl mx-auto space-y-28">

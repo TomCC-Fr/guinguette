@@ -2,11 +2,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { redirect } from "next/navigation";
 import { FEATURES } from "@/lib/features";
 
-if (!FEATURES.INFOS) {
-  redirect("/");
-}
-
 export default function InfosPage() {
+  
+  if (!FEATURES.INFOS) {
+  redirect("/");
+  }
+
   return (
     <div className="min-h-screen bg-white py-20 px-6">
       <div className="max-w-5xl mx-auto space-y-16">

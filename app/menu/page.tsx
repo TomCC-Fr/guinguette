@@ -5,10 +5,6 @@ import AnimatedMenuContent from "./AnimatedMenuContent";
 import { redirect } from "next/navigation";
 import { FEATURES } from "@/lib/features";
 
-if (!FEATURES.MENU) {
-  redirect("/");
-}
-
 export const dynamic = "force-dynamic";
 
 export default async function MenuPage({
@@ -47,6 +43,10 @@ export default async function MenuPage({
     .from("suppliers")
     .select("id, name, description, website")
     .order("name", { ascending: true });
+  
+    if (!FEATURES.MENU) {
+      redirect("/");
+    }
 
   return (
     <div className="min-h-screen bg-white py-14 px-6">
