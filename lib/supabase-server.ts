@@ -1,22 +1,8 @@
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { createClient } from "@supabase/supabase-js";
 
-export async function createClient() {
-  const cookieStore = await cookies();
-
-  return createServerClient(
+export function createServerClient() {
+  return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        // 🚫 On ne modifie PAS les cookies côté Server Component
-        setAll() {
-          // vide volontairement
-        },
-      },
-    }
+    process.env.SUPABASE_SERVICE_ROLE_KEY! // 🔥 clé privée
   );
 }

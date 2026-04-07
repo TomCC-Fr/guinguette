@@ -47,7 +47,7 @@ export default function Header() {
           {/* PLANNING */}
           {FEATURES.PLANNING && (
             <Link href="/planning" className={linkClass("/planning")}>
-              Planning
+              Evenements
             </Link>
           )}
 
@@ -112,7 +112,7 @@ export default function Header() {
               className={linkClass("/planning")}
               onClick={() => setOpen(false)}
             >
-              Planning
+              Evenements
             </Link>
           )}
 

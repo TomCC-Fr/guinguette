@@ -5,7 +5,7 @@ import { FEATURES } from "@/lib/features";
 export default function InfosPage() {
   
   if (!FEATURES.INFOS) {
-  redirect("/");
+    redirect("/");
   }
 
   return (
@@ -84,6 +84,62 @@ export default function InfosPage() {
             Ouvrir l’itinéraire sur Google Maps
           </a>
         </div>
+
+        {/* ================= RÉSEAUX SOCIAUX ================= */}
+        <Card className="rounded-2xl shadow-md">
+          <CardContent className="p-8 text-center space-y-6">
+
+            <h2 className="text-xl font-semibold">
+              📱 Suivez-nous
+            </h2>
+
+            <p className="text-stone-600">
+              Retrouvez toute l’actualité de la guinguette
+            </p>
+
+            <div className="flex justify-center gap-6">
+
+              {/* INSTAGRAM */}
+              <a
+                href="https://www.instagram.com/guinguetteperechapuis/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center justify-center w-14 h-14 rounded-full border border-stone-300 hover:border-stone-900 transition"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-6 h-6 text-stone-600 group-hover:text-black transition"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <rect x="2" y="2" width="20" height="20" rx="5" />
+                  <circle cx="12" cy="12" r="4" />
+                  <circle cx="17" cy="7" r="1.5" />
+                </svg>
+              </a>
+
+              {/* FACEBOOK */}
+              <a
+                href="https://www.facebook.com/guinguetteduperechapuis"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center justify-center w-14 h-14 rounded-full border border-stone-300 hover:border-stone-900 transition"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-6 h-6 text-stone-600 group-hover:text-black transition"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M13 22v-8h3l1-4h-4V7c0-1 0-2 2-2h2V1h-3c-4 0-6 2-6 6v3H5v4h3v8h5z" />
+                </svg>
+              </a>
+
+            </div>
+
+          </CardContent>
+        </Card>
 
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { createServerClient } from "@/lib/supabase-server";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
@@ -7,6 +7,8 @@ import { redirect } from "next/navigation";
 import { FEATURES } from "@/lib/features";
 
 export const dynamic = "force-dynamic";
+
+const supabase = createServerClient();
 
 export default async function PlanningPage() {
   const { data: events } = await supabase
@@ -41,7 +43,7 @@ if (!FEATURES.PLANNING) {
         {/* HEADER */}
         <div className="mb-20 text-center">
           <h1 className="text-4xl md:text-5xl font-semibold tracking-tight">
-            Planning des événements
+            Calendrier des événements
           </h1>
           <p className="mt-4 text-stone-600">
             Concerts, cinéma en plein air, sport et soirées à la guinguette.

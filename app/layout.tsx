@@ -39,14 +39,62 @@ export default function RootLayout({
         </main>
 
         {/* FOOTER */}
-        <footer className="bg-stone-900 text-stone-200 py-10 text-center mt-20">
-          <p className="font-semibold">Guinguette du Père Chapuis</p>
-          <p className="text-sm mt-2">
-            1 parc des vallées – 49140 Seiches-sur-le-Loir
-          </p>
-          <p className="text-sm mt-1">
-            © {new Date().getFullYear()} – Tous droits réservés
-          </p>
+        <footer className="bg-stone-900 text-stone-200 mt-20">
+          <div className="max-w-6xl mx-auto px-6 py-12 grid md:grid-cols-3 gap-10 text-sm">
+
+            {/* IDENTITÉ */}
+            <div className="space-y-3">
+              <p className="font-semibold text-white">
+                Guinguette du Père Chapuis
+              </p>
+              <p>
+                1 parc des vallées<br />
+                49140 Seiches-sur-le-Loir
+              </p>
+              <a href="tel:+33600000000" className="hover:underline">
+                06 00 00 00 00
+              </a>
+            </div>
+
+            {/* HORAIRES */}
+            <div className="space-y-3">
+              <p className="font-semibold text-white">Horaires</p>
+
+              <div className="space-y-1 text-stone-300">
+                <p>Mardi – Dimanche : 11h30 – 22h</p>
+                <p>Vendredi & Samedi : 11h30 – 00h</p>
+                <p className="text-stone-400">Fermé le lundi</p>
+              </div>
+            </div>
+
+            {/* RÉSEAUX */}
+            <div className="space-y-3">
+              <p className="font-semibold text-white">Suivez-nous</p>
+
+              <div className="flex gap-4">
+                <a
+                  href="https://instagram.com/TON_COMPTE"
+                  target="_blank"
+                  className="hover:underline"
+                >
+                  Instagram
+                </a>
+
+                <a
+                  href="https://facebook.com/TON_COMPTE"
+                  target="_blank"
+                  className="hover:underline"
+                >
+                  Facebook
+                </a>
+              </div>
+
+              <p className="text-xs text-stone-400 mt-4">
+                © {new Date().getFullYear()} – Tous droits réservés
+              </p>
+            </div>
+
+          </div>
         </footer>
       </body>
     </html>

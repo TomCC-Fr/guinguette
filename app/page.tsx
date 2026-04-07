@@ -1,7 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/lib/supabase";
+import { createServerClient } from "@/lib/supabase-server";
+
+const supabase = createServerClient();
+import { ALERT_BANNER } from "@/lib/features";
 
 export default async function HomePage() {
 
@@ -17,6 +20,12 @@ export default async function HomePage() {
 
   return (
     <div>
+      {/* ================= BANDEAU ALERTE ================= */}
+      {ALERT_BANNER.enabled && (
+        <div className="bg-emerald-900 text-white text-center py-2 text-l tracking-wide">
+          {ALERT_BANNER.message}
+        </div>
+      )}
 
       {/* HERO */}
       <section className="relative h-[70vh] md:h-[80vh] w-full">
@@ -33,12 +42,12 @@ export default async function HomePage() {
 
         <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-6">
           <h1 className="text-3xl md:text-5xl font-semibold mb-6">
-            Bienvenue à la guinguette du Père Chapuis
+            La guinguette du Père Chapuis
           </h1>
 
           <p className="text-base md:text-lg mb-8 max-w-xl">
-            Une parenthèse conviviale au bord du Loir,
-            à Seiches-sur-le-Loir.
+            On met l'accent sur la qualité dans le verre et dans l'assiette. 
+    
           </p>
 
           <Link
@@ -124,7 +133,7 @@ export default async function HomePage() {
                   href="/planning"
                   className="text-sm text-stone-500 hover:text-stone-800 transition"
                 >
-                  Voir tout le planning →
+                  Voir tous les évenements →
                 </Link>
               </div>
             </div>

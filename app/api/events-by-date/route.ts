@@ -1,5 +1,14 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase-server";
+import { createServerClient } from "@/lib/supabase-server";
+
+function formatImagePath(fileName: string | null) {
+  if (!fileName) return null;
+
+  // encode les espaces et caractères spéciaux
+  const encoded = encodeURIComponent(fileName);
+
+  return `/events/${encoded}`;
+}
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -10,7 +19,7 @@ export async function GET(request: Request) {
     return NextResponse.json(null);
   }
 
-  const supabase = await createClient();
+  const supabase = await createServerClient();
 
   const { data, error } = await supabase
     .from("events")
@@ -19,9 +28,22 @@ export async function GET(request: Request) {
     .eq("service", service)
     .maybeSingle();
 
-  if (error) {
+  if (error || !data) {
     return NextResponse.json(null);
   }
 
-  return NextResponse.json(data);
+  const formatted = {
+    id: data.id,
+    title: data.title,
+    description: data.description,
+
+    // ✅ FIX ICI
+    image_url: formatImagePath(data.image_file),
+
+    start_time: data.heure_debut,
+    youtube_url: data.youtube_url,
+    music_url: data.spotify_url,
+  };
+
+  return NextResponse.json(formatted);
 }
