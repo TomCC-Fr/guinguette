@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
 import PDFDocument from "pdfkit";
-import { createClient } from "@/lib/supabase-server";
+import { createServerClient } from "@/lib/supabase-server";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -14,7 +14,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Date requise" }, { status: 400 });
   }
 
-  const supabase = await createClient();
+  const supabase = createServerClient();
 
   let query = supabase
     .from("reservations")
