@@ -1,6 +1,6 @@
 export const FEATURES = {
   MENU: true,
-  EQUIPE: true,
+  EQUIPE: false,
   INFOS : true,
   PLANNING : true,
   RESERVATION : true

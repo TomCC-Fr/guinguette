@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation"; // ✅ ajouté
 import { Youtube, Music } from "lucide-react";
 
 export default function ReservationClient({
@@ -8,6 +9,8 @@ export default function ReservationClient({
 }: {
   initialParams: { date?: string; service?: string };
 }) {
+  const searchParams = useSearchParams(); // ✅ ajouté
+
   const [loading, setLoading] = useState(false);
   const [service, setService] = useState<string | null>(
     initialParams?.service || null
@@ -24,6 +27,22 @@ export default function ReservationClient({
   } | null>(null);
 
   const today = new Date().toISOString().split("T")[0];
+
+  // =========================
+  // 🔥 SYNC URL PARAMS (AJOUT)
+  // =========================
+  useEffect(() => {
+    const date = searchParams.get("date");
+    const serviceParam = searchParams.get("service");
+
+    if (date && date !== selectedDate) {
+      setSelectedDate(date);
+    }
+
+    if (serviceParam && serviceParam !== service) {
+      setService(serviceParam);
+    }
+  }, [searchParams]);
 
   // =========================
   // 🔎 AVAILABILITY
@@ -160,7 +179,6 @@ export default function ReservationClient({
       setEventData(null);
       setAvailability(null);
     } else {
-      // 🔥 gestion intelligente des erreurs
       if (result.error === "Service complet") {
         alert(
           "Ce service est complet.\n\nAppelez-nous au 06 XX XX XX XX pour voir les disponibilités restantes ☎️"
@@ -180,7 +198,6 @@ export default function ReservationClient({
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          
           <div className="grid md:grid-cols-2 gap-6">
             <input name="nom" placeholder="Nom de la réservation" required className="border-b py-2" />
             <input name="telephone" placeholder="Téléphone" required className="border-b py-2" />
@@ -268,13 +285,12 @@ export default function ReservationClient({
           </button>
         </form>
 
-        {/* 🎉 EVENT COMPLET RESTAURÉ */}
+        {/* 🎉 EVENT */}
         {eventData && (
           <div className="mt-10 border-t pt-6">
 
             <div className="flex flex-col md:flex-row gap-6 items-start">
 
-              {/* IMAGE */}
               {eventData.image_url && (
                 <img
                   src={eventData.image_url}
@@ -283,7 +299,6 @@ export default function ReservationClient({
                 />
               )}
 
-              {/* CONTENU */}
               <div className="space-y-2">
 
                 <h3 className="font-semibold text-lg">
