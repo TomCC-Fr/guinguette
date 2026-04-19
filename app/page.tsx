@@ -54,7 +54,7 @@ export default async function HomePage() {
             href="/reservation"
             className="bg-white text-stone-800 px-6 py-3 rounded-xl hover:bg-stone-100 transition"
           >
-            Réserver une table
+            Je veux venir manger à la guinguette
           </Link>
         </div>
 
@@ -124,7 +124,7 @@ export default async function HomePage() {
                 href={`/reservation?date=${nextEvent.date}&event=${encodeURIComponent(nextEvent.title)}&service=${nextEvent.service}`}
               >
                 <Button className="mt-2">
-                  Réserver 🍽️
+                  A mon tour de réserver 🍽️
                 </Button>
               </Link>
 

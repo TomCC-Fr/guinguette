@@ -186,7 +186,7 @@ if (!FEATURES.PLANNING) {
                     href={`/reservation?date=${event.date}&event=${encodeURIComponent(event.title)}&service=${event.service}`}
                   >
                     <Button size="sm" className="mt-2">
-                      Réserver 🍽️
+                      Je veux venir manger 🍽️
                     </Button>
                   </Link>
 

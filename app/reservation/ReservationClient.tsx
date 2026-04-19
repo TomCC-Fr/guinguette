@@ -194,7 +194,7 @@ export default function ReservationClient({
       <div className="max-w-4xl mx-auto px-6 py-16">
 
         <h1 className="text-2xl md:text-3xl font-semibold mb-10">
-          Réserver une table
+          Je veux réserver une table :
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
