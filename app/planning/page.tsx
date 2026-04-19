@@ -8,7 +8,7 @@ import { FEATURES } from "@/lib/features";
 
 export const dynamic = "force-dynamic";
 
-const supabase = createServerClient();
+const supabase = await createServerClient();
 
 export default async function PlanningPage() {
   const { data: events } = await supabase
