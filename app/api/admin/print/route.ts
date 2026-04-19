@@ -11,7 +11,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Date requise" }, { status: 400 });
   }
 
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
 
   let query = supabase
     .from("reservations")

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase-server";
 
-const supabase = createServerClient();
+const supabase = await createServerClient();
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);

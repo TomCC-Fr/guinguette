@@ -20,7 +20,7 @@ export async function GET(request: Request) {
   }
 
   const supabase = await createServerClient();
-
+  
   const { data, error } = await supabase
     .from("events")
     .select("id, title, description, image_file, youtube_url, spotify_url, heure_debut")

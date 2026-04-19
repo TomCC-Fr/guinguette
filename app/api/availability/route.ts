@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase-server";
 
-const supabase = createServerClient();
+const supabase = await createServerClient();
 
 function getDayOfWeek(dateString: string) {
   const date = new Date(dateString);
