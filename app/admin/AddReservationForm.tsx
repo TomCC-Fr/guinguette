@@ -15,7 +15,7 @@ export default function AddReservationForm({
 
   const [form, setForm] = useState({
     nom: "",
-    email: "", // ✅ AJOUT
+    email: "",
     telephone: "",
     date: defaultDate,
     service: "SOIR",
@@ -57,7 +57,10 @@ export default function AddReservationForm({
     });
 
     setOpen(false);
-    router.refresh();
+
+    router.refresh(); // ✅ refresh auto
+
+    alert("Réservation ajoutée ✅"); // ✅ feedback UX
   }
 
   return (
@@ -95,11 +98,10 @@ export default function AddReservationForm({
                 }
               />
 
-              {/* ✅ EMAIL AJOUTÉ */}
+              {/* ✅ EMAIL OPTIONNEL */}
               <input
                 type="email"
-                placeholder="Email"
-                required
+                placeholder="Email (optionnel)"
                 value={form.email}
                 className="border rounded px-3 py-2"
                 onChange={(e) =>
@@ -107,9 +109,9 @@ export default function AddReservationForm({
                 }
               />
 
+              {/* ✅ TEL OPTIONNEL */}
               <input
-                placeholder="Téléphone"
-                required
+                placeholder="Téléphone (optionnel)"
                 value={form.telephone}
                 className="border rounded px-3 py-2"
                 onChange={(e) =>
@@ -142,7 +144,6 @@ export default function AddReservationForm({
                 <option value="SOIR">SOIR</option>
               </select>
 
-              {/* ✅ UN SEUL INPUT HEURE */}
               <input
                 type="time"
                 value={form.heure}

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase-server";
 import { Resend } from "resend";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -13,7 +14,7 @@ function getDayOfWeek(dateString: string) {
 }
 
 export async function POST(request: Request) {
-  const supabase = await createServerClient(); // ✅ déplacé ici
+  const supabase = supabaseAdmin;
 
   try {
     const body = await request.json();
@@ -21,7 +22,8 @@ export async function POST(request: Request) {
     const { nom, email, telephone, date, service, heure, personnes } = body;
 
     const normalizedService = service?.toUpperCase();
-
+    console.log("SERVICE RECU:", service);
+    console.log("SERVICE NORMALIZED:", normalizedService);
     // =========================
     // VALIDATION
     // =========================
@@ -211,24 +213,24 @@ export async function POST(request: Request) {
       );
     }
 
-    await resend.emails.send({
-      from: "Guinguette <onboarding@resend.dev>",
-      to: email,
-      subject: "Demande de réservation reçue 🍽️🍷",
-      html: `
-        <h2>Merci pour votre réservation. Ne pas répondre à ce mail, pour toute demande veuillez nous appeler au 02 41 93 39 00</h2>
-        <ul>
-          <li>Date : ${date}</li>
-          <li>Service : ${normalizedService}</li>
-          <li>Heure : ${heure}</li>
-          <li>Personnes : ${personnes}</li>
-        </ul>
-      `,
-    });
+//    const emailClientResult = await resend.emails.send({
+//      from: "Guinguette <onboarding@resend.dev>",
+//      to: "thomas.couzon@gmail.com",
+//      subject: "Demande de réservation reçue 🍽️🍷",
+//      html: `
+//        <h2>Merci pour votre réservation. Ne pas répondre à ce mail, pour toute demande veuillez nous appeler au 02 41 93 39 00</h2>
+//        <ul>
+//          <li>Date : ${date}</li>
+//          <li>Service : ${normalizedService}</li>
+//          <li>Heure : ${heure}</li>
+//          <li>Personnes : ${personnes}</li>
+//        </ul>
+//      `,
+//    });
 
-    await resend.emails.send({
+    const emailInternalResult = await resend.emails.send({
       from: "Guinguette <onboarding@resend.dev>",
-      to: "guinguettechapuis@gmail.com",
+      to: "thomas.couzon@gmail.com",
       subject: "Nouvelle réservation reçue :",
       html: `
         <h2>Nouvelle réservation</h2>

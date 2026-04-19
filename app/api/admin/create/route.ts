@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createServerClient } from "@/lib/supabase-server";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 
 export async function POST(req: Request) {
   try {
@@ -15,15 +15,21 @@ export async function POST(req: Request) {
       personnes,
     } = body;
 
-    const supabase = await createServerClient();
+    // ✅ validation minimale (email + téléphone NON obligatoires)
+    if (!nom || !date || !service || !heure || !personnes) {
+      return NextResponse.json(
+        { error: "Champs obligatoires manquants" },
+        { status: 400 }
+      );
+    }
 
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from("reservations")
       .insert([
         {
           nom,
-          email,
-          telephone,
+          email: email || null,           // ✅ propre si vide
+          telephone: telephone || null,   // ✅ propre si vide
           date,
           service,
           heure,
@@ -32,7 +38,7 @@ export async function POST(req: Request) {
       ]);
 
     if (error) {
-      console.error(error);
+      console.error("❌ INSERT ERROR:", error);
       return NextResponse.json(
         { error: "Erreur base de données" },
         { status: 500 }
@@ -42,7 +48,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true });
 
   } catch (err) {
-    console.error(err);
+    console.error("❌ SERVER ERROR:", err);
     return NextResponse.json(
       { error: "Erreur serveur" },
       { status: 500 }
