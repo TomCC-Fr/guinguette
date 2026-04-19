@@ -7,7 +7,7 @@ import { Resend } from "resend";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // 📞 NUMÉRO À MODIFIER
-const CONTACT_PHONE = "06 XX XX XX XX";
+const CONTACT_PHONE = "02 41 93 39 00";
 
 function getDayOfWeek(dateString: string) {
   const date = new Date(dateString);
@@ -227,7 +227,7 @@ export async function POST(request: Request) {
       to: email,
       subject: "Demande de réservation reçue 🍽️🍷",
       html: `
-        <h2>Merci pour votre réservation</h2>
+        <h2>Merci pour votre réservation. Ne pas répondre à ce mail, pour toute demande veuillez nous appeler au 02 41 93 39 00</h2>
         <ul>
           <li>Date : ${date}</li>
           <li>Service : ${normalizedService}</li>
@@ -242,7 +242,7 @@ export async function POST(request: Request) {
     // =========================
     await resend.emails.send({
       from: "Guinguette <onboarding@resend.dev>",
-      to: "thomas.couzon@gmail.com",
+      to: "guinguettechapuis@gmail.com",
       subject: "Nouvelle réservation reçue :",
       html: `
         <h2>Nouvelle réservation</h2>
