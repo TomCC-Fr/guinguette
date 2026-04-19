@@ -2,11 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { createServerClient } from "@/lib/supabase-server";
-
-const supabase = createServerClient();
 import { ALERT_BANNER } from "@/lib/features";
 
 export default async function HomePage() {
+
+  // ✅ IMPORTANT : doit être dans la fonction
+  const supabase = createServerClient();
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -20,6 +21,7 @@ export default async function HomePage() {
 
   return (
     <div>
+
       {/* ================= BANDEAU ALERTE ================= */}
       {ALERT_BANNER.enabled && (
         <div className="bg-emerald-900 text-white text-center py-2 text-l tracking-wide">
@@ -27,7 +29,7 @@ export default async function HomePage() {
         </div>
       )}
 
-      {/* HERO */}
+      {/* ================= HERO ================= */}
       <section className="relative h-[70vh] md:h-[80vh] w-full">
 
         <Image
@@ -41,13 +43,14 @@ export default async function HomePage() {
         <div className="absolute inset-0 bg-black/30"></div>
 
         <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-6">
+
+          {/* 👉 ICI tu pourras remplacer par ton logo plus tard */}
           <h1 className="text-3xl md:text-5xl font-semibold mb-6">
             La guinguette du Père Chapuis
           </h1>
 
           <p className="text-base md:text-lg mb-8 max-w-xl">
-            On met l'accent sur la qualité dans le verre et dans l'assiette. 
-    
+            On met l'accent sur la qualité dans le verre et dans l'assiette.
           </p>
 
           <Link
@@ -56,11 +59,11 @@ export default async function HomePage() {
           >
             Je veux venir manger à la guinguette
           </Link>
-        </div>
 
+        </div>
       </section>
 
-      {/* PROCHAIN ÉVÉNEMENT */}
+      {/* ================= PROCHAIN ÉVÉNEMENT ================= */}
       {nextEvent && (
         <section className="py-20 md:py-32 bg-stone-50 border-t border-stone-200">
           <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 md:gap-16 items-center">
@@ -133,9 +136,10 @@ export default async function HomePage() {
                   href="/planning"
                   className="text-sm text-stone-500 hover:text-stone-800 transition"
                 >
-                  Voir tous les évenements →
+                  Voir tous les événements →
                 </Link>
               </div>
+
             </div>
           </div>
         </section>
