@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase-server";
-
-const supabase = await createServerClient();
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -15,6 +13,8 @@ function getDayOfWeek(dateString: string) {
 }
 
 export async function POST(request: Request) {
+  const supabase = await createServerClient(); // ✅ déplacé ici
+
   try {
     const body = await request.json();
 
@@ -167,9 +167,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // 🚨 SI PAS DE CONFIG → message client
     if (!capacityData || capacityData.length === 0) {
-      console.error("Aucune règle de capacité trouvée");
       return NextResponse.json(
         {
           error: `Réservation indisponible en ligne.\n\nVeuillez nous contacter au ${CONTACT_PHONE} pour procéder à la réservation`,
@@ -180,9 +178,6 @@ export async function POST(request: Request) {
 
     const capaciteMax = capacityData[0].max_capacity;
 
-    // =========================
-    // 🚫 BLOCAGE
-    // =========================
     if (total + Number(personnes) > capaciteMax) {
       return NextResponse.json(
         {
@@ -192,9 +187,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // =========================
-    // ✅ INSERT
-    // =========================
     const { error: insertError } = await supabase
       .from("reservations")
       .insert([
@@ -219,9 +211,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // =========================
-    // 📧 EMAIL CLIENT
-    // =========================
     await resend.emails.send({
       from: "Guinguette <onboarding@resend.dev>",
       to: email,
@@ -237,9 +226,6 @@ export async function POST(request: Request) {
       `,
     });
 
-    // =========================
-    // 📧 EMAIL INTERNE
-    // =========================
     await resend.emails.send({
       from: "Guinguette <onboarding@resend.dev>",
       to: "guinguettechapuis@gmail.com",

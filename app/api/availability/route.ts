@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase-server";
 
-const supabase = await createServerClient();
-
 function getDayOfWeek(dateString: string) {
   const date = new Date(dateString);
   return date.getDay();
 }
 
 export async function GET(request: Request) {
+  const supabase = await createServerClient(); // ✅ déplacé ici
+
   const { searchParams } = new URL(request.url);
   const date = searchParams.get("date");
 
