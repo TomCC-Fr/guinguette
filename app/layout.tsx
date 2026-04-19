@@ -61,8 +61,9 @@ export default function RootLayout({
               <p className="font-semibold text-white">Horaires</p>
 
               <div className="space-y-1 text-stone-300">
-                <p>Mardi – Dimanche : 11h30 – 22h</p>
-                <p>Vendredi & Samedi : 11h30 – 00h</p>
+                <p>Mardi à Jeudi : 11h00 – 22h</p>
+                <p>Vendredi & Samedi : 11h00 – 23h</p>
+                <p>Dimanche : 11h00 – 17h</p>
                 <p className="text-stone-400">Fermé le lundi</p>
               </div>
             </div>
@@ -73,7 +74,7 @@ export default function RootLayout({
 
               <div className="flex gap-4">
                 <a
-                  href="https://instagram.com/TON_COMPTE"
+                  href="https://www.instagram.com/guinguetteperechapuis/"
                   target="_blank"
                   className="hover:underline"
                 >
@@ -81,7 +82,7 @@ export default function RootLayout({
                 </a>
 
                 <a
-                  href="https://facebook.com/TON_COMPTE"
+                  href="https://www.facebook.com/guinguetteduperechapuis"
                   target="_blank"
                   className="hover:underline"
                 >

@@ -31,15 +31,15 @@ export default function InfosPage() {
               </p>
             </div>
 
-{/*            <div>
+            <div>
               <h2 className="text-xl font-semibold mb-2">Téléphone</h2>
               <a
                 href="tel:+33600000000"
                 className="text-amber-700 hover:underline"
               >
-                06 00 00 00 00
+                02 41 93 39 00
               </a>
-            </div> */}
+            </div> 
 
             <div>
               <h2 className="text-xl font-semibold mb-2">Horaires</h2>
