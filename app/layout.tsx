@@ -52,7 +52,7 @@ export default function RootLayout({
                 49140 Seiches-sur-le-Loir
               </p>
               <a href="tel:+33600000000" className="hover:underline">
-                06 00 00 00 00
+                02 41 93 39 00
               </a>
             </div>
 
