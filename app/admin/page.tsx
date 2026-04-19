@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase-server";
+import { createServerClient } from "@/lib/supabase-server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import AddReservationForm from "./AddReservationForm";
@@ -11,7 +11,7 @@ export default async function AdminPage({
 }: {
   searchParams: Promise<{ date?: string; service?: string }>;
 }) {
-  const supabase = await createClient();
+  const supabase = await createServerClient();
 
   // 🔐 Vérification session
   const {

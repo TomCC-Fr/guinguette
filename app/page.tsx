@@ -7,7 +7,7 @@ import { ALERT_BANNER } from "@/lib/features";
 export default async function HomePage() {
 
   // ✅ IMPORTANT : doit être dans la fonction
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
 
   const today = new Date().toISOString().split("T")[0];
 
