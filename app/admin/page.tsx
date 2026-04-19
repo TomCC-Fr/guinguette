@@ -1,4 +1,4 @@
-import { createServerClient } from "@/lib/supabase-server";
+import { createClient } from "@/lib/supabase-server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import AddReservationForm from "./AddReservationForm";
@@ -11,7 +11,7 @@ export default async function AdminPage({
 }: {
   searchParams: Promise<{ date?: string; service?: string }>;
 }) {
-  const supabase = createServerClient();
+  const supabase = await createClient();
 
   // 🔐 Vérification session
   const {
@@ -41,7 +41,6 @@ export default async function AdminPage({
     console.error("Erreur Supabase:", error);
   }
 
-  // 📊 Total (hors annulées)
   const total =
     reservations?.reduce(
       (sum, r) =>
@@ -53,10 +52,8 @@ export default async function AdminPage({
     <div className="min-h-screen bg-white py-20 px-6">
       <div className="max-w-7xl mx-auto space-y-10">
 
-        {/* ➕ Ajout rapide */}
         <AddReservationForm defaultDate={selectedDate} />
 
-        {/* FILTRES */}
         <div className="bg-stone-50 p-6 rounded-2xl">
           <form method="GET" className="flex flex-wrap gap-6 items-end">
 
@@ -87,7 +84,7 @@ export default async function AdminPage({
               </select>
             </div>
 
-            <button className="bg-stone-800 text-white px-5 py-2 rounded-lg hover:bg-stone-700 transition">
+            <button className="bg-stone-800 text-white px-5 py-2 rounded-lg">
               Filtrer
             </button>
 
@@ -101,15 +98,14 @@ export default async function AdminPage({
             <a
               href={`/api/admin/print/pdf?date=${selectedDate}&service=${selectedService}`}
               target="_blank"
-              className="bg-stone-900 text-white px-5 py-2 rounded-lg hover:bg-stone-700 transition"
+              className="bg-stone-900 text-white px-5 py-2 rounded-lg"
             >
-              🖨 Imprimer la feuille du service
+              🖨 Imprimer
             </a>
 
           </form>
         </div>
 
-        {/* TOTAL */}
         <div className="bg-stone-50 p-6 rounded-2xl">
           <p className="text-sm text-stone-500">
             Total couverts (hors annulées)
@@ -119,7 +115,6 @@ export default async function AdminPage({
           </p>
         </div>
 
-        {/* TABLEAU */}
         <div className="bg-white rounded-2xl shadow overflow-hidden">
           <table className="w-full text-sm">
             <thead className="bg-stone-100 text-stone-600">
@@ -135,20 +130,14 @@ export default async function AdminPage({
             </thead>
 
             <tbody>
-              {reservations && reservations.length > 0 ? (
+              {reservations?.length ? (
                 reservations.map((r) => (
-                  <EditableRow
-                    key={r.id}
-                    reservation={r}
-                  />
+                  <EditableRow key={r.id} reservation={r} />
                 ))
               ) : (
                 <tr>
-                  <td
-                    colSpan={7}
-                    className="p-6 text-center text-stone-400"
-                  >
-                    Aucune réservation trouvée
+                  <td colSpan={7} className="p-6 text-center text-stone-400">
+                    Aucune réservation
                   </td>
                 </tr>
               )}
