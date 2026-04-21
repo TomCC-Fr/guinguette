@@ -9,7 +9,7 @@ export default function ReservationPage() {
 
         <div className="w-full">
           <iframe
-            src="https://ordertab.menu/laguingetteduperechapuis/R%C3%A9servations"
+            src="https://ordertab.menu/laguingetteduperechapuis"
             className="w-full h-[750px] border-0 rounded-xl"
           />
         </div>
