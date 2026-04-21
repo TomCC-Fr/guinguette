@@ -2,18 +2,20 @@
 
 import Script from "next/script";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+
 
 export default function ReservationPage() {
   return (
     <div className="min-h-screen bg-white px-6 py-10">
 
-      {/* 🔙 BACK BUTTON */}
       <div className="max-w-4xl mx-auto mb-6">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-stone-600 hover:text-black transition"
+          className="inline-flex items-center gap-2 text-stone-500 hover:text-black transition text-sm"
         >
-          ← Retour
+          <ArrowLeft size={16} />
+          Retour à la guinguette
         </Link>
       </div>
 
