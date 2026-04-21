@@ -1,17 +1,33 @@
-import ReservationClient from "./ReservationClient";
-import { redirect } from "next/navigation";
-import { FEATURES } from "@/lib/features";
+"use client";
 
-if (!FEATURES.RESERVATION) {
-  redirect("/");
-}
+import Script from "next/script";
 
-export const dynamic = "force-dynamic";
+export default function ReservationPage() {
+  return (
+    <div className="min-h-screen bg-white py-16 px-6">
+      <div className="max-w-4xl mx-auto">
 
-export default function ReservationPage({
-  searchParams,
-}: {
-  searchParams: { date?: string; service?: string };
-}) {
-  return <ReservationClient initialParams={searchParams} />;
+        <h1 className="text-2xl md:text-3xl font-semibold mb-10 text-center">
+          Réserver une table
+        </h1>
+
+        {/* ✅ Script chargé proprement */}
+        <Script
+          src="https://ordertab.menu/laguingetteduperechapuis/widget"
+          strategy="afterInteractive"
+        />
+
+        {/* ✅ Widget */}
+        <div className="w-full">
+          <bt-booking-widget />
+        </div>
+
+        {/* fallback */}
+        <p className="text-center text-sm text-stone-500 mt-6">
+          Si le module ne s'affiche pas, contactez-nous au 02 41 93 39 00 ☎️
+        </p>
+
+      </div>
+    </div>
+  );
 }
