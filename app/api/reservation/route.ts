@@ -1,16 +1,14 @@
 import { NextResponse } from "next/server";
-import { createServerClient } from "@/lib/supabase-server";
 import { Resend } from "resend";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// 📞 NUMÉRO À MODIFIER
 const CONTACT_PHONE = "02 41 93 39 00";
+const MAX_ONLINE = 10;
 
 function getDayOfWeek(dateString: string) {
-  const date = new Date(dateString);
-  return date.getDay(); // 0 = dimanche
+  return new Date(dateString).getDay();
 }
 
 export async function POST(request: Request) {
@@ -19,13 +17,21 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    const { nom, email, telephone, date, service, heure, personnes } = body;
+    const {
+      nom,
+      email,
+      telephone,
+      date,
+      service,
+      heure,
+      personnes,
+      commentaire,
+    } = body;
 
     const normalizedService = service?.toUpperCase();
-    console.log("SERVICE RECU:", service);
-    console.log("SERVICE NORMALIZED:", normalizedService);
+
     // =========================
-    // VALIDATION
+    // 🔒 VALIDATION
     // =========================
     if (!nom || !email || !date || !normalizedService || !heure || !personnes) {
       return NextResponse.json(
@@ -34,161 +40,152 @@ export async function POST(request: Request) {
       );
     }
 
+    if (Number(personnes) > MAX_ONLINE) {
+      return NextResponse.json(
+        {
+          error: `Pour les groupes de plus de ${MAX_ONLINE} personnes, merci de nous appeler au ${CONTACT_PHONE}`,
+        },
+        { status: 400 }
+      );
+    }
+
     const dayOfWeek = getDayOfWeek(date);
+    const safeDate = date.split("T")[0];
 
     // =========================
     // 🟢 1. CHECK PÉRIODE
     // =========================
-    const { data: periods, error: periodError } = await supabase
+    const { data: periods } = await supabase
       .from("opening_periods")
       .select("*")
       .eq("is_active", true);
 
-    if (periodError) {
-      console.error("Period error:", periodError);
-      return NextResponse.json(
-        {
-          error: `Une erreur innatendue est survenue.\nVeuillez nous contacter au ${CONTACT_PHONE} pour procéder à la réservation`,
-        },
-        { status: 500 }
-      );
-    }
-
-    if (periods && periods.length > 0) {
+    if (periods?.length) {
       const isInPeriod = periods.some(
-        (p) => date >= p.start_date && date <= p.end_date
+        (p) => safeDate >= p.start_date && safeDate <= p.end_date
       );
 
       if (!isInPeriod) {
         return NextResponse.json(
-          { error: "La guinguette du père Chapuis est fermée à cette date" },
+          { error: "Établissement fermé à cette date" },
           { status: 400 }
         );
       }
     }
 
     // =========================
-    // ⚡ 2. CHECK EXCEPTIONS
+    // ⚡ 2. EXCEPTIONS (PRIORITÉ)
     // =========================
-    const { data: exceptions, error: exceptionError } = await supabase
+    const { data: exceptions } = await supabase
       .from("closure_exceptions")
       .select("*")
-      .eq("date", date);
+      .eq("date", safeDate);
 
-    if (exceptionError) {
-      console.error("Exception error:", exceptionError);
+    const match = exceptions?.find(
+      (e) => e.service === null || e.service === normalizedService
+    );
+
+    if (match?.is_closed) {
       return NextResponse.json(
-        {
-          error: `Une erreur innatendue est survenue.\n\nVeuillez nous contacter au ${CONTACT_PHONE} pour procéder à la réservation`,
-        },
-        { status: 500 }
+        { error: "Ce service est exceptionnellement fermé" },
+        { status: 400 }
       );
     }
 
-    if (exceptions && exceptions.length > 0) {
-      const match = exceptions.find(
-        (e) => e.service === null || e.service === normalizedService
-      );
-
-      if (match) {
-        if (match.is_closed) {
-          return NextResponse.json(
-            { error: "Ce service est exceptionnellement fermé" },
-            { status: 400 }
-          );
-        }
-      }
-    }
-
     // =========================
-    // 🔁 3. CHECK HEBDO
+    // 🔁 3. HEBDO
     // =========================
-    const { data: weekly, error: weeklyError } = await supabase
+    const { data: weekly } = await supabase
       .from("weekly_opening_rules")
-      .select("*")
+      .select("is_open")
       .eq("day_of_week", dayOfWeek)
-      .eq("service", normalizedService);
+      .eq("service", normalizedService)
+      .maybeSingle();
 
-    if (weeklyError) {
-      console.error("Weekly error:", weeklyError);
+    if (!weekly?.is_open) {
       return NextResponse.json(
-        {
-          error: `Une erreur innatendue est survenue.\n\nVeuillez nous contacter au ${CONTACT_PHONE} pour procéder à la réservation`,
-        },
-        { status: 500 }
+        { error: "Service non disponible" },
+        { status: 400 }
       );
     }
 
-    if (weekly && weekly.length > 0) {
-      const rule = weekly[0];
+    // =========================
+    // 🔎 4. TOTAL SERVICE (PRIORITÉ)
+    // =========================
+    const { data: totalServiceData, error: serviceError } =
+      await supabase.rpc("total_personnes_service", {
+        p_date: date,
+        p_service: normalizedService,
+      });
 
-      if (!rule.is_open) {
-        return NextResponse.json(
-          { error: "Ce service n'est pas assuré" },
-          { status: 400 }
-        );
-      }
+    if (serviceError) {
+      console.error(serviceError);
+      return NextResponse.json({ error: "Erreur calcul" }, { status: 500 });
     }
 
-    // =========================
-    // 🔎 4. TOTAL RÉSERVÉ
-    // =========================
-    const result = await supabase.rpc("total_personnes_service", {
-      p_date: date,
-      p_service: normalizedService,
-    });
+    const totalService = Number(totalServiceData) || 0;
 
-    if (result.error) {
-      console.error("RPC error:", result.error);
-      return NextResponse.json(
-        {
-          error: `Une erreur innatendue est survenue.\n\nVeuillez nous contacter au ${CONTACT_PHONE} pour procéder à la réservation`,
-        },
-        { status: 500 }
-      );
-    }
-
-    const total = Number(result.data) || 0;
-
-    // =========================
-    // 🔁 5. CAPACITÉ
-    // =========================
-    const { data: capacityData, error: capacityError } = await supabase
+    const { data: globalCapacity } = await supabase
       .from("capacity_rules")
-      .select("*")
+      .select("max_capacity")
       .eq("day_of_week", dayOfWeek)
-      .eq("service", normalizedService);
+      .eq("service", normalizedService)
+      .maybeSingle();
 
-    if (capacityError) {
-      console.error("Capacity error:", capacityError);
+    if (
+      globalCapacity?.max_capacity &&
+      totalService + Number(personnes) > globalCapacity.max_capacity
+    ) {
       return NextResponse.json(
         {
-          error: `Une erreur innatendue est survenue.\n\nVeuillez nous contacter au ${CONTACT_PHONE} pour procéder à la réservation`,
-        },
-        { status: 500 }
-      );
-    }
-
-    if (!capacityData || capacityData.length === 0) {
-      return NextResponse.json(
-        {
-          error: `Réservation indisponible en ligne.\n\nVeuillez nous contacter au ${CONTACT_PHONE} pour procéder à la réservation`,
+          error: `Service complet.\n\nAppelez-nous au ${CONTACT_PHONE}`,
         },
         { status: 400 }
       );
     }
 
-    const capaciteMax = capacityData[0].max_capacity;
+    // =========================
+    // 🔎 5. TOTAL CRÉNEAU
+    // =========================
+    const { data: totalSlotData, error: slotError } =
+      await supabase.rpc("total_personnes_creneau", {
+        p_date: date,
+        p_service: normalizedService,
+        p_heure: heure,
+      });
 
-    if (total + Number(personnes) > capaciteMax) {
+    if (slotError) {
+      console.error(slotError);
+      return NextResponse.json({ error: "Erreur calcul" }, { status: 500 });
+    }
+
+    const totalSlot = Number(totalSlotData) || 0;
+
+    const { data: slotCapacity } = await supabase
+      .from("capacity_time_slots")
+      .select("max_capacity")
+      .eq("day_of_week", dayOfWeek)
+      .eq("service", normalizedService)
+      .eq("time", heure)
+      .maybeSingle();
+
+    const maxSlot =
+      slotCapacity?.max_capacity ??
+      globalCapacity?.max_capacity ??
+      0;
+
+    if (totalSlot + Number(personnes) > maxSlot) {
       return NextResponse.json(
         {
-          error: `Réservation indisponible en ligne.\n\nVeuillez nous contacter au ${CONTACT_PHONE} pour procéder à la réservation`,
+          error: `Créneau complet.\n\nAppelez-nous au ${CONTACT_PHONE}`,
         },
         { status: 400 }
       );
     }
 
+    // =========================
+    // 💾 INSERT
+    // =========================
     const { error: insertError } = await supabase
       .from("reservations")
       .insert([
@@ -200,38 +197,25 @@ export async function POST(request: Request) {
           service: normalizedService,
           heure,
           personnes,
+          commentaire,
         },
       ]);
 
     if (insertError) {
       console.error(insertError);
       return NextResponse.json(
-        {
-          error: `Une erreur innatendue est survenue.\n\nVeuillez nous contacter au ${CONTACT_PHONE} pour procéder à la réservation`,
-        },
+        { error: "Erreur base de données" },
         { status: 500 }
       );
     }
 
-//    const emailClientResult = await resend.emails.send({
-//      from: "Guinguette <onboarding@resend.dev>",
-//      to: "thomas.couzon@gmail.com",
-//      subject: "Demande de réservation reçue 🍽️🍷",
-//      html: `
-//        <h2>Merci pour votre réservation. Ne pas répondre à ce mail, pour toute demande veuillez nous appeler au 02 41 93 39 00</h2>
-//        <ul>
-//          <li>Date : ${date}</li>
-//          <li>Service : ${normalizedService}</li>
-//          <li>Heure : ${heure}</li>
-//          <li>Personnes : ${personnes}</li>
-//        </ul>
-//      `,
-//    });
-
-    const emailInternalResult = await resend.emails.send({
+    // =========================
+    // 📧 EMAIL INTERNE
+    // =========================
+    await resend.emails.send({
       from: "Guinguette <onboarding@resend.dev>",
       to: "thomas.couzon@gmail.com",
-      subject: "Nouvelle réservation reçue :",
+      subject: "Nouvelle réservation",
       html: `
         <h2>Nouvelle réservation</h2>
         <ul>
@@ -240,6 +224,9 @@ export async function POST(request: Request) {
           <li>Service : ${normalizedService}</li>
           <li>Heure : ${heure}</li>
           <li>Personnes : ${personnes}</li>
+          <li>Email : ${email}</li>
+          <li>Téléphone : ${telephone}</li>
+          <li>Commentaire : ${commentaire || "-"}</li>
         </ul>
       `,
     });
@@ -249,9 +236,7 @@ export async function POST(request: Request) {
   } catch (err) {
     console.error(err);
     return NextResponse.json(
-      {
-        error: `Une erreur innatendue est survenue.\n\nVeuillez nous contacter au ${CONTACT_PHONE} pour procéder à la réservation`,
-      },
+      { error: "Erreur serveur" },
       { status: 500 }
     );
   }

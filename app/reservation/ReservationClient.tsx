@@ -1,15 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation"; // ✅ ajouté
-import { Youtube, Music } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+
+const MAX_ONLINE = 10;
 
 export default function ReservationClient({
   initialParams,
 }: {
   initialParams: { date?: string; service?: string };
 }) {
-  const searchParams = useSearchParams(); // ✅ ajouté
+  const searchParams = useSearchParams();
 
   const [loading, setLoading] = useState(false);
   const [service, setService] = useState<string | null>(
@@ -18,56 +19,52 @@ export default function ReservationClient({
   const [selectedDate, setSelectedDate] = useState(
     initialParams?.date || ""
   );
-  const [eventData, setEventData] = useState<any | null>(null);
-  const [selectedTime, setSelectedTime] = useState<string>("");
+  const [selectedTime, setSelectedTime] = useState("");
 
-  const [availability, setAvailability] = useState<{
-    isOpen: boolean;
-    services: { MIDI: boolean; SOIR: boolean };
-  } | null>(null);
+  const [personnes, setPersonnes] = useState(2);
+
+  const [availability, setAvailability] = useState<any>(null);
+  const [timeSlots, setTimeSlots] = useState<
+    { time: string; available: boolean }[]
+  >([]);
+
+  const [eventData, setEventData] = useState<any>(null);
+
+  // ✅ NOUVEAU
+  const [isServiceFull, setIsServiceFull] = useState(false);
 
   const today = new Date().toISOString().split("T")[0];
 
   // =========================
-  // 🔥 SYNC URL PARAMS (AJOUT)
+  // 🔥 SYNC URL
   // =========================
   useEffect(() => {
     const date = searchParams.get("date");
     const serviceParam = searchParams.get("service");
 
-    if (date && date !== selectedDate) {
-      setSelectedDate(date);
-    }
-
-    if (serviceParam && serviceParam !== service) {
-      setService(serviceParam);
-    }
+    if (date) setSelectedDate(date);
+    if (serviceParam) setService(serviceParam);
   }, [searchParams]);
 
   // =========================
   // 🔎 AVAILABILITY
   // =========================
   useEffect(() => {
-    if (!selectedDate) {
-      setAvailability(null);
-      return;
-    }
+    if (!selectedDate) return;
 
     async function fetchAvailability() {
-      const res = await fetch(
-        `/api/availability?date=${selectedDate}`
-      );
-
-      if (!res.ok) {
-        setAvailability(null);
-        return;
-      }
-
+      const res = await fetch(`/api/availability?date=${selectedDate}`);
       const data = await res.json();
+
       setAvailability(data);
 
-      if (service && !data.services[service as "MIDI" | "SOIR"]) {
+      if (
+        service &&
+        data?.services &&
+        data.services[service] === false
+      ) {
         setService(null);
+        setSelectedTime("");
       }
     }
 
@@ -75,7 +72,51 @@ export default function ReservationClient({
   }, [selectedDate]);
 
   // =========================
-  // 🎉 EVENTS
+  // 🕒 CRÉNEAUX
+  // =========================
+  useEffect(() => {
+    if (!selectedDate || !service) {
+      setTimeSlots([]);
+      return;
+    }
+
+    async function fetchTimes() {
+      const res = await fetch(
+        `/api/availability-times?date=${selectedDate}&service=${service}`
+      );
+
+      const data = await res.json();
+      setTimeSlots(data);
+    }
+
+    fetchTimes();
+  }, [selectedDate, service]);
+
+  // =========================
+  // 🔴 SERVICE COMPLET (NOUVEAU)
+  // =========================
+  useEffect(() => {
+    if (!selectedDate || !service) {
+      setIsServiceFull(false);
+      return;
+    }
+
+    async function checkFull() {
+      const res = await fetch(
+        `/api/service-full?date=${selectedDate}&service=${service}`
+      );
+
+      if (!res.ok) return;
+
+      const data = await res.json();
+      setIsServiceFull(data.isFull);
+    }
+
+    checkFull();
+  }, [selectedDate, service]);
+
+  // =========================
+  // 🎉 EVENT
   // =========================
   useEffect(() => {
     if (!selectedDate || !service) {
@@ -88,10 +129,7 @@ export default function ReservationClient({
         `/api/events-by-date?date=${selectedDate}&service=${service}`
       );
 
-      if (!res.ok) {
-        setEventData(null);
-        return;
-      }
+      if (!res.ok) return;
 
       const data = await res.json();
       setEventData(data);
@@ -100,48 +138,26 @@ export default function ReservationClient({
     fetchEvent();
   }, [selectedDate, service]);
 
-  function generateTimes(start: string, end: string) {
-    const times: string[] = [];
-    let [h, m] = start.split(":").map(Number);
-    const [endH, endM] = end.split(":").map(Number);
-
-    while (h < endH || (h === endH && m <= endM)) {
-      times.push(
-        `${h.toString().padStart(2, "0")}:${m
-          .toString()
-          .padStart(2, "0")}`
-      );
-      m += 15;
-      if (m === 60) {
-        m = 0;
-        h++;
-      }
-    }
-    return times;
-  }
-
-  const midiTimes = generateTimes("11:45", "13:00");
-  const soirTimes = generateTimes("19:00", "21:00");
-
-  const availableTimes =
-    service === "MIDI"
-      ? midiTimes
-      : service === "SOIR"
-      ? soirTimes
-      : [];
-
-  useEffect(() => {
-    if (service === "MIDI") setSelectedTime("12:30");
-    if (service === "SOIR") setSelectedTime("19:30");
-  }, [service]);
-
-  function formatTime(time?: string) {
-    if (!time) return "";
-    return time.slice(0, 5);
-  }
-
+  // =========================
+  // 📨 SUBMIT
+  // =========================
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    if (personnes > MAX_ONLINE) {
+      alert(
+        "Pour les groupes de plus de 10 personnes, merci de nous appeler."
+      );
+      return;
+    }
+
+    if (isServiceFull) {
+      alert(
+        "Service complet. Merci de nous contacter au 02 41 93 39 00."
+      );
+      return;
+    }
+
     setLoading(true);
 
     const form = e.currentTarget;
@@ -155,9 +171,10 @@ export default function ReservationClient({
       service,
       heure: selectedTime,
       personnes: formData.get("personnes"),
+      commentaire: formData.get("commentaire"),
     };
 
-    const response = await fetch("/api/reservation", {
+    const res = await fetch("/api/reservation", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -165,27 +182,19 @@ export default function ReservationClient({
       body: JSON.stringify(data),
     });
 
-    const result = await response.json();
+    const result = await res.json();
 
     setLoading(false);
 
-    if (response.ok) {
+    if (res.ok) {
       alert("Réservation envoyée 🍷");
-
       form.reset();
       setSelectedDate("");
       setService(null);
       setSelectedTime("");
-      setEventData(null);
-      setAvailability(null);
+      setPersonnes(2);
     } else {
-      if (result.error === "Service complet") {
-        alert(
-          "Ce service est complet.\n\nAppelez-nous au 06 XX XX XX XX pour voir les disponibilités restantes ☎️"
-        );
-      } else {
-        alert(result.error || "Erreur lors de la réservation");
-      }
+      alert(result.error);
     }
   }
 
@@ -198,50 +207,42 @@ export default function ReservationClient({
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+
           <div className="grid md:grid-cols-2 gap-6">
-            <input name="nom" placeholder="Nom de la réservation" required className="border-b py-2" />
+            <input name="nom" placeholder="Nom" required className="border-b py-2" />
             <input name="telephone" placeholder="Téléphone" required className="border-b py-2" />
           </div>
 
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            required
-            className="border-b py-2 w-full"
-          />
+          <input type="email" name="email" placeholder="Email" required className="border-b py-2 w-full" />
 
           <input
             type="date"
-            required
             min={today}
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
+            required
             className="border-b py-2"
           />
 
           {availability && !availability.isOpen && (
             <p className="text-red-600 text-sm">
-              Guinguette fermée ce jour
+              Établissement fermé ce jour
             </p>
           )}
 
           <div className="flex gap-3">
             {["MIDI", "SOIR"].map((s) => {
-              const isAvailable =
-                availability?.services?.[s as "MIDI" | "SOIR"] ?? true;
+              const disabled = availability?.services?.[s] === false;
 
               return (
                 <button
                   key={s}
                   type="button"
-                  disabled={!isAvailable}
+                  disabled={disabled}
                   onClick={() => setService(s)}
-                  className={`px-4 py-2 rounded-full border text-sm ${
-                    service === s
-                      ? "bg-stone-900 text-white"
-                      : ""
-                  } ${!isAvailable ? "opacity-30 cursor-not-allowed" : ""}`}
+                  className={`px-4 py-2 rounded-full border ${
+                    service === s ? "bg-black text-white" : ""
+                  } ${disabled ? "opacity-30 cursor-not-allowed" : ""}`}
                 >
                   {s}
                 </button>
@@ -249,20 +250,32 @@ export default function ReservationClient({
             })}
           </div>
 
+          {/* 🔴 MESSAGE SERVICE COMPLET */}
+          {isServiceFull && (
+            <p className="text-red-600 text-sm">
+              Réservation en ligne non disponible pour ce service,
+              veuillez nous contacter au 02 41 93 39 00
+            </p>
+          )}
+
           <select
-            required
             value={selectedTime}
             onChange={(e) => setSelectedTime(e.target.value)}
-            disabled={!service}
+            disabled={!service || isServiceFull}
+            required
             className="border-b py-2 w-full"
           >
-            <option value="">
-              {service ? "Choisir une heure" : "Choisissez un service"}
-            </option>
+            <option value="">Choisir une heure</option>
 
-            {availableTimes.map((t) => (
-              <option key={t} value={t}>
-                {t}
+            {timeSlots.map((slot) => (
+              <option
+                key={slot.time}
+                value={slot.time}
+                disabled={!slot.available}
+              >
+                {slot.available
+                  ? slot.time
+                  : `❌ ${slot.time} (complet)`}
               </option>
             ))}
           </select>
@@ -272,68 +285,42 @@ export default function ReservationClient({
             name="personnes"
             min={1}
             max={20}
-            placeholder="Nombre de personnes"
+            value={personnes}
+            onChange={(e) => setPersonnes(Number(e.target.value))}
             required
             className="border-b py-2 w-full"
           />
 
+          {personnes > MAX_ONLINE && (
+            <p className="text-amber-600 text-sm">
+              Groupes de +10 → appelez-nous
+            </p>
+          )}
+
+          <textarea
+            name="commentaire"
+            placeholder="Commentaire"
+            className="border rounded px-3 py-2 w-full"
+          />
+
           <button
-            disabled={loading}
-            className="bg-stone-900 text-white px-6 py-3 rounded-full w-full"
+            disabled={loading || isServiceFull}
+            className="bg-black text-white px-6 py-3 rounded-full w-full disabled:opacity-50"
           >
             {loading ? "Envoi..." : "Réserver"}
           </button>
+
         </form>
 
-        {/* 🎉 EVENT */}
+        {/* EVENT */}
         {eventData && (
           <div className="mt-10 border-t pt-6">
-
-            <div className="flex flex-col md:flex-row gap-6 items-start">
-
-              {eventData.image_url && (
-                <img
-                  src={eventData.image_url}
-                  alt={eventData.title}
-                  className="w-full md:w-48 h-40 object-cover rounded-lg flex-shrink-0"
-                />
-              )}
-
-              <div className="space-y-2">
-
-                <h3 className="font-semibold text-lg">
-                  {eventData.title}
-                </h3>
-
-                {eventData.start_time && (
-                  <p className="text-sm text-stone-600">
-                    Début : {eventData.start_time.slice(0, 5)}
-                  </p>
-                )}
-
-                {eventData.description && (
-                  <p className="text-sm text-stone-600">
-                    {eventData.description}
-                  </p>
-                )}
-
-                <div className="flex gap-4 pt-2">
-                  {eventData.youtube_url && (
-                    <a href={eventData.youtube_url} target="_blank">
-                      <Youtube className="w-5 h-5" />
-                    </a>
-                  )}
-
-                  {eventData.music_url && (
-                    <a href={eventData.music_url} target="_blank">
-                      <Music className="w-5 h-5" />
-                    </a>
-                  )}
-                </div>
-
-              </div>
-            </div>
-
+            <h3 className="font-semibold text-lg">
+              {eventData.title}
+            </h3>
+            <p className="text-sm text-gray-600">
+              {eventData.description}
+            </p>
           </div>
         )}
 

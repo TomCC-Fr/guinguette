@@ -1,88 +1,93 @@
 import { NextResponse } from "next/server";
-import { createServerClient } from "@/lib/supabase-server";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 
 function getDayOfWeek(dateString: string) {
-  const date = new Date(dateString);
-  return date.getDay();
+  return new Date(dateString).getDay();
 }
 
-export async function GET(request: Request) {
-  const supabase = await createServerClient(); // ✅ déplacé ici
+export async function GET(req: Request) {
+  const supabase = supabaseAdmin;
 
-  const { searchParams } = new URL(request.url);
+  const { searchParams } = new URL(req.url);
   const date = searchParams.get("date");
 
   if (!date) {
-    return NextResponse.json({ error: "Date manquante" }, { status: 400 });
-  }
-
-  const dayOfWeek = getDayOfWeek(date);
-
-  // =========================
-  // 🟢 PÉRIODE
-  // =========================
-  const { data: periods } = await supabase
-    .from("opening_periods")
-    .select("*")
-    .eq("is_active", true);
-
-  let isInPeriod = true;
-
-  if (periods && periods.length > 0) {
-    isInPeriod = periods.some(
-      (p) => date >= p.start_date && date <= p.end_date
+    return NextResponse.json(
+      { error: "Missing date" },
+      { status: 400 }
     );
   }
 
-  if (!isInPeriod) {
-    return NextResponse.json({
-      isOpen: false,
-      services: { MIDI: false, SOIR: false },
+  const safeDate = date.split("T")[0];
+  const dayOfWeek = getDayOfWeek(date);
+
+  try {
+    // =========================
+    // 🟢 PÉRIODE
+    // =========================
+    const { data: periods } = await supabase
+      .from("opening_periods")
+      .select("*")
+      .eq("is_active", true);
+
+    if (periods?.length) {
+      const inPeriod = periods.some(
+        (p) => safeDate >= p.start_date && safeDate <= p.end_date
+      );
+
+      if (!inPeriod) {
+        return NextResponse.json({
+          isOpen: false,
+          services: { MIDI: false, SOIR: false },
+        });
+      }
+    }
+
+    // =========================
+    // 🔁 HEBDO
+    // =========================
+    const { data: weekly } = await supabase
+      .from("weekly_opening_rules")
+      .select("*")
+      .eq("day_of_week", dayOfWeek);
+
+    const services = {
+      MIDI: false,
+      SOIR: false,
+    };
+
+    weekly?.forEach((w) => {
+      if (w.service === "MIDI" && w.is_open) services.MIDI = true;
+      if (w.service === "SOIR" && w.is_open) services.SOIR = true;
     });
-  }
 
-  // =========================
-  // 🔁 RÈGLES HEBDO
-  // =========================
-  const { data: weekly } = await supabase
-    .from("weekly_opening_rules")
-    .select("*")
-    .eq("day_of_week", dayOfWeek);
+    // =========================
+    // ⚡ EXCEPTIONS (priorité)
+    // =========================
+    const { data: exceptions } = await supabase
+      .from("closure_exceptions")
+      .select("*")
+      .eq("date", safeDate);
 
-  let services = {
-    MIDI: true,
-    SOIR: true,
-  };
+    exceptions?.forEach((e) => {
+      if (e.service === null && e.is_closed) {
+        services.MIDI = false;
+        services.SOIR = false;
+      }
 
-  if (weekly && weekly.length > 0) {
-    weekly.forEach((rule) => {
-      services[rule.service as "MIDI" | "SOIR"] = rule.is_open;
-    });
-  }
-
-  // =========================
-  // ⚡ EXCEPTIONS
-  // =========================
-  const { data: exceptions } = await supabase
-    .from("closure_exceptions")
-    .select("*")
-    .eq("date", date);
-
-  if (exceptions && exceptions.length > 0) {
-    exceptions.forEach((e) => {
-      if (e.service === null) {
-        services.MIDI = !e.is_closed;
-        services.SOIR = !e.is_closed;
-      } else {
-        services[e.service as "MIDI" | "SOIR"] = !e.is_closed;
+      if (e.service && e.is_closed) {
+        services[e.service as "MIDI" | "SOIR"] = false;
       }
     });
+
+    const isOpen = services.MIDI || services.SOIR;
+
+    return NextResponse.json({ isOpen, services });
+
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json(
+      { isOpen: false, services: { MIDI: false, SOIR: false } }
+    );
   }
-
-  const isOpen = services.MIDI || services.SOIR;
-
-  return NextResponse.json({
-    isOpen,
-    services,
-  });
 }
