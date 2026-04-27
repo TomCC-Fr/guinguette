@@ -6,7 +6,7 @@ export const FEATURES = {
   RESERVATION : true
 };
 
-//export const ALERT_BANNER = {
-//  enabled: true,//
-//  message: "Le 25 avril, soirée Tapas en écoutant Pompas et Solo",
-//};
+export const ALERT_BANNER = {
+  enabled: false,//
+  message: "Le 25 avril, soirée Tapas en écoutant Pompas et Solo",
+};
