@@ -107,7 +107,7 @@ export default function InfosPage() {
                 className="group flex items-center justify-center w-14 h-14 rounded-full border border-stone-300 hover:border-stone-900 transition"
               >
                 <svg
-                  xmlns="http://www.w3.org/2000/svg"
+                  xmlns="https://www.w3.org/2000/svg"
                   className="w-6 h-6 text-stone-600 group-hover:text-black transition"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -127,7 +127,7 @@ export default function InfosPage() {
                 className="group flex items-center justify-center w-14 h-14 rounded-full border border-stone-300 hover:border-stone-900 transition"
               >
                 <svg
-                  xmlns="http://www.w3.org/2000/svg"
+                  xmlns="https://www.w3.org/2000/svg"
                   className="w-6 h-6 text-stone-600 group-hover:text-black transition"
                   fill="currentColor"
                   viewBox="0 0 24 24"
