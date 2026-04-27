@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import AddReservationForm from "./AddReservationForm";
 import EditableRow from "./EditableRow";
+import CapacityBlock from "./CapacityBlock";
 
 export const dynamic = "force-dynamic";
 
@@ -145,6 +146,8 @@ export default async function AdminPage({
 
           </table>
         </div>
+
+        <CapacityBlock />
 
       </div>
     </div>
