@@ -21,6 +21,7 @@ export default function AddReservationForm({
     service: "SOIR",
     heure: "19:30",
     personnes: 2,
+    commentaire: "",
   });
 
   async function handleSubmit(e: React.FormEvent) {
@@ -54,13 +55,14 @@ export default function AddReservationForm({
       service: "SOIR",
       heure: "19:30",
       personnes: 2,
+      commentaire: "",
     });
 
     setOpen(false);
 
-    router.refresh(); // ✅ refresh auto
+    router.refresh();
 
-    alert("Réservation ajoutée ✅"); // ✅ feedback UX
+    alert("Réservation ajoutée ✅");
   }
 
   return (
@@ -98,7 +100,6 @@ export default function AddReservationForm({
                 }
               />
 
-              {/* ✅ EMAIL OPTIONNEL */}
               <input
                 type="email"
                 placeholder="Email (optionnel)"
@@ -109,7 +110,6 @@ export default function AddReservationForm({
                 }
               />
 
-              {/* ✅ TEL OPTIONNEL */}
               <input
                 placeholder="Téléphone (optionnel)"
                 value={form.telephone}
@@ -167,6 +167,18 @@ export default function AddReservationForm({
               />
 
             </div>
+
+            {/* ✅ COMMENTAIRE CORRIGÉ */}
+            <textarea
+              placeholder="Commentaire (allergies, anniversaire...)"
+              value={form.commentaire}
+              onChange={(e) =>
+                setForm({ ...form, commentaire: e.target.value })
+              }
+              maxLength={300}
+              rows={2}
+              className="border rounded px-3 py-2 w-full text-sm resize-none"
+            />
 
             <button
               disabled={loading}

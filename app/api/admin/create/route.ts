@@ -13,6 +13,7 @@ export async function POST(req: Request) {
       service,
       heure,
       personnes,
+      commentaire,
     } = body;
 
     // ✅ validation minimale (email + téléphone NON obligatoires)
@@ -34,6 +35,7 @@ export async function POST(req: Request) {
           service,
           heure,
           personnes,
+          commentaire,
         },
       ]);
 

@@ -126,6 +126,7 @@ export default async function AdminPage({
                 <th className="p-3 text-left">Nom</th>
                 <th className="p-3 text-left">Pers.</th>
                 <th className="p-3 text-left">Téléphone</th>
+                <th className="p-3 text-left">Commentaire</th>
                 <th className="p-3 text-left">Actions</th>
               </tr>
             </thead>
@@ -137,7 +138,7 @@ export default async function AdminPage({
                 ))
               ) : (
                 <tr>
-                  <td colSpan={7} className="p-6 text-center text-stone-400">
+                  <td colSpan={8} className="p-6 text-center text-stone-400">
                     Aucune réservation
                   </td>
                 </tr>

@@ -5,10 +5,40 @@ import { useRouter } from "next/navigation";
 import ProcessButton from "./ProcessButton";
 import CancelButton from "./CancelButton";
 
+function CommentCell({ text }: { text?: string }) {
+  const [open, setOpen] = useState(false);
+
+  if (!text) return <span className="text-stone-400">-</span>;
+
+  const isLong = text.length > 40;
+
+  return (
+    <div className="text-xs text-stone-600">
+      {!isLong ? (
+        text
+      ) : (
+        <>
+          <span>
+            {open ? text : text.slice(0, 40) + "..."}
+          </span>
+
+          <button
+            onClick={() => setOpen(!open)}
+            className="ml-2 text-blue-600 underline"
+          >
+            {open ? "Réduire" : "Voir"}
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function EditableRow({ reservation }: any) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState(reservation);
+  const [commentaire, setCommentaire] = useState(reservation.commentaire || "");
 
   const cancelled = Boolean(reservation.cancelled);
   const processed = Boolean(reservation.processed);
@@ -81,6 +111,21 @@ export default function EditableRow({ reservation }: any) {
           />
         </td>
 
+        <td className="p-3">
+          {editing ? (
+            <textarea
+              value={form.commentaire || ""}
+              onChange={(e) =>
+                setForm({ ...form, commentaire: e.target.value })
+              }
+              className="border rounded px-2 py-1 w-full text-sm resize-none"
+              rows={2}
+            />
+          ) : (
+            reservation.commentaire || "-"
+          )}
+        </td>
+
         <td className="p-2 flex gap-2">
           <button
             onClick={save}
@@ -151,6 +196,10 @@ export default function EditableRow({ reservation }: any) {
       {/* Téléphone */}
       <td className="p-3">
         {reservation.telephone}
+      </td>
+
+      <td className="p-3 max-w-[250px]">
+        <CommentCell text={reservation.commentaire} />
       </td>
 
       {/* Actions */}
