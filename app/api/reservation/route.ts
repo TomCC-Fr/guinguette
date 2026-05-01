@@ -212,44 +212,45 @@ export async function POST(request: Request) {
     // =========================
     // 📧 EMAIL CLIENT
     // =========================
-    await resend.emails.send({
-      from: "Guinguette <onboarding@resend.dev>", // temporaire
-      to: email,
-      subject: "Confirmation de votre réservation 🍷",
-      html: `
-        <h2>Votre réservation est bien enregistrée</h2>
+    //await resend.emails.send({
+    //  from: "Guinguette <onboarding@resend.dev>", // temporaire
+    //  from: "Guinguette <onboarding@resend.dev>", // temporaire
+    //  to: email,
+    //  subject: "Confirmation de votre réservation 🍷",
+    //  html: `
+    //    <h2>Votre réservation est bien enregistrée</h2>
 
-        <p>Bonjour ${nom},</p>
+    //    <p>Bonjour ${nom},</p>
 
-        <p>Nous avons bien reçu votre demande de réservation :</p>
+    //    <p>Nous avons bien reçu votre demande de réservation :</p>
 
-        <ul>
-          <li><strong>Date :</strong> ${date}</li>
-          <li><strong>Service :</strong> ${normalizedService}</li>
-          <li><strong>Heure :</strong> ${heure}</li>
-          <li><strong>Nombre de personnes :</strong> ${personnes}</li>
-        </ul>
+    //    <ul>
+    //      <li><strong>Date :</strong> ${date}</li>
+    //      <li><strong>Service :</strong> ${normalizedService}</li>
+    //      <li><strong>Heure :</strong> ${heure}</li>
+    //      <li><strong>Nombre de personnes :</strong> ${personnes}</li>
+    //    </ul>
 
-        ${
-          commentaire
-            ? `<p><strong>Commentaire :</strong> ${commentaire}</p>`
-            : ""
-        }
+    //    ${
+    //      commentaire
+    //        ? `<p><strong>Commentaire :</strong> ${commentaire}</p>`
+    //         : ""
+    //    }
 
-        <p>🍷 Nous avons hâte de vous accueillir à la guinguette !</p>
+    //    <p>🍷 Nous avons hâte de vous accueillir à la guinguette !</p>
 
-        <p>
-          Pour toute modification, merci de nous appeler au ${CONTACT_PHONE}.
-        </p>
-      `,
-    });
+    //    <p>
+    //      Pour toute modification, merci de nous appeler au ${CONTACT_PHONE}.
+    //    </p>
+    //  `,
+    //});
     
     // =========================
     // 📧 EMAIL INTERNE
     // =========================
     await resend.emails.send({
       from: "Guinguette <onboarding@resend.dev>",
-      to: "thomas.couzon@gmail.com",
+      to: "guinguettechapuis@gmail.com",
       subject: "Nouvelle réservation",
       html: `
         <h2>Nouvelle réservation</h2>
