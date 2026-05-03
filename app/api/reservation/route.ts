@@ -239,7 +239,7 @@ export async function POST(request: Request) {
         <p>🍷 Nous avons hâte de vous accueillir à la guinguette !</p>
 
         <p>
-          Pour toute modification, merci de nous appeler au ${CONTACT_PHONE}.
+          Pour toute modification, veuillez nous contacter au ${CONTACT_PHONE}.
         </p>
       `,
     });

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 
-const MAX_ONLINE = 10;
+const MAX_ONLINE = 12;
 
 export default function ReservationClient({
   initialParams,
@@ -146,7 +146,7 @@ export default function ReservationClient({
 
     if (personnes > MAX_ONLINE) {
       alert(
-        "Pour les groupes de plus de 10 personnes, merci de nous appeler."
+        "Pour les groupes de plus de 12 personnes, merci de nous appeler."
       );
       return;
     }
@@ -293,7 +293,7 @@ export default function ReservationClient({
 
           {personnes > MAX_ONLINE && (
             <p className="text-amber-600 text-sm">
-              Groupes de +10 → appelez-nous
+              Groupes de +12 → appelez-nous au 02 41 93 39 00
             </p>
           )}
 

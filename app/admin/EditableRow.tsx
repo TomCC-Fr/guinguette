@@ -8,7 +8,9 @@ import CancelButton from "./CancelButton";
 function CommentCell({ text }: { text?: string }) {
   const [open, setOpen] = useState(false);
 
-  if (!text) return <span className="text-stone-400">-</span>;
+  if (!text) {
+    return <span className="text-stone-400">-</span>;
+  }
 
   const isLong = text.length > 40;
 
@@ -23,6 +25,7 @@ function CommentCell({ text }: { text?: string }) {
           </span>
 
           <button
+            type="button"
             onClick={() => setOpen(!open)}
             className="ml-2 text-blue-600 underline"
           >
@@ -34,24 +37,68 @@ function CommentCell({ text }: { text?: string }) {
   );
 }
 
-export default function EditableRow({ reservation }: any) {
+export default function EditableRow({
+  reservation,
+}: any) {
   const router = useRouter();
+
   const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState(reservation);
-  const [commentaire, setCommentaire] = useState(reservation.commentaire || "");
+
+  const [form, setForm] = useState({
+    ...reservation,
+    commentaire: reservation.commentaire || "",
+  });
 
   const cancelled = Boolean(reservation.cancelled);
   const processed = Boolean(reservation.processed);
 
+  // =========================
+  // SAVE
+  // =========================
   async function save() {
-    await fetch("/api/admin/update", {
+    const res = await fetch("/api/admin/update", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify(form),
     });
 
+    if (!res.ok) {
+      alert("Erreur lors de la sauvegarde");
+      return;
+    }
+
     setEditing(false);
     router.refresh();
+  }
+
+  // =========================
+  // RESEND EMAIL
+  // =========================
+  async function resendEmail() {
+    const res = await fetch(
+      "/api/admin/resend-email",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+        body: JSON.stringify({
+          id: reservation.id,
+        }),
+      }
+    );
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      alert(result.error || "Erreur email");
+      return;
+    }
+
+    alert("Email renvoyé ✅");
   }
 
   // =========================
@@ -60,30 +107,41 @@ export default function EditableRow({ reservation }: any) {
   if (editing && !cancelled) {
     return (
       <tr className="border-t bg-amber-100">
+        {/* CHECK */}
         <td></td>
 
+        {/* HEURE */}
         <td className="p-2">
           <input
             value={form.heure}
             onChange={(e) =>
-              setForm({ ...form, heure: e.target.value })
+              setForm({
+                ...form,
+                heure: e.target.value,
+              })
             }
             className="border px-2 py-1 rounded w-full"
           />
         </td>
 
+        {/* SERVICE */}
         <td></td>
 
+        {/* NOM */}
         <td className="p-2">
           <input
             value={form.nom}
             onChange={(e) =>
-              setForm({ ...form, nom: e.target.value })
+              setForm({
+                ...form,
+                nom: e.target.value,
+              })
             }
             className="border px-2 py-1 rounded w-full"
           />
         </td>
 
+        {/* PERSONNES */}
         <td className="p-2">
           <input
             type="number"
@@ -91,41 +149,47 @@ export default function EditableRow({ reservation }: any) {
             onChange={(e) =>
               setForm({
                 ...form,
-                personnes: Number(e.target.value),
+                personnes: Number(
+                  e.target.value
+                ),
               })
             }
             className="border px-2 py-1 rounded w-full"
           />
         </td>
 
+        {/* TELEPHONE */}
         <td className="p-2">
           <input
-            value={form.telephone}
+            value={form.telephone || ""}
             onChange={(e) =>
               setForm({
                 ...form,
-                telephone: e.target.value,
+                telephone:
+                  e.target.value,
               })
             }
             className="border px-2 py-1 rounded w-full"
           />
         </td>
 
-        <td className="p-3">
-          {editing ? (
-            <textarea
-              value={form.commentaire || ""}
-              onChange={(e) =>
-                setForm({ ...form, commentaire: e.target.value })
-              }
-              className="border rounded px-2 py-1 w-full text-sm resize-none"
-              rows={2}
-            />
-          ) : (
-            reservation.commentaire || "-"
-          )}
+        {/* COMMENTAIRE */}
+        <td className="p-2">
+          <textarea
+            value={form.commentaire}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                commentaire:
+                  e.target.value,
+              })
+            }
+            className="border rounded px-2 py-1 w-full text-sm resize-none"
+            rows={2}
+          />
         </td>
 
+        {/* ACTIONS */}
         <td className="p-2 flex gap-2">
           <button
             onClick={save}
@@ -135,7 +199,9 @@ export default function EditableRow({ reservation }: any) {
           </button>
 
           <button
-            onClick={() => setEditing(false)}
+            onClick={() =>
+              setEditing(false)
+            }
             className="bg-stone-200 px-3 py-1 rounded hover:bg-stone-300 transition"
           >
             Annuler
@@ -146,12 +212,14 @@ export default function EditableRow({ reservation }: any) {
   }
 
   // =========================
-  // STYLE DYNAMIQUE
+  // STYLE LIGNE
   // =========================
-  let rowStyle = "hover:bg-stone-50";
+  let rowStyle =
+    "hover:bg-stone-50";
 
   if (cancelled) {
-    rowStyle = "bg-red-50 text-stone-400 line-through";
+    rowStyle =
+      "bg-red-50 text-stone-400 line-through";
   } else if (processed) {
     rowStyle = "bg-emerald-50";
   }
@@ -160,9 +228,10 @@ export default function EditableRow({ reservation }: any) {
   // MODE NORMAL
   // =========================
   return (
-    <tr className={`border-t transition ${rowStyle}`}>
-      
-      {/* ✔ */}
+    <tr
+      className={`border-t transition ${rowStyle}`}
+    >
+      {/* CHECK */}
       <td className="p-3">
         <ProcessButton
           id={reservation.id}
@@ -171,49 +240,56 @@ export default function EditableRow({ reservation }: any) {
         />
       </td>
 
-      {/* Heure */}
+      {/* HEURE */}
       <td className="p-3 font-medium">
         {reservation.heure}
       </td>
 
-      {/* Service */}
+      {/* SERVICE */}
       <td className="p-3">
-        {reservation.service === "MIDI"
+        {reservation.service ===
+        "MIDI"
           ? "🌞 MIDI"
           : "🌙 SOIR"}
       </td>
 
-      {/* Nom */}
+      {/* NOM */}
       <td className="p-3 font-semibold">
         {reservation.nom}
       </td>
 
-      {/* Personnes */}
+      {/* PERSONNES */}
       <td className="p-3">
         {reservation.personnes}
       </td>
 
-      {/* Téléphone */}
+      {/* TELEPHONE */}
       <td className="p-3">
-        {reservation.telephone}
+        {reservation.telephone ||
+          "-"}
       </td>
 
+      {/* COMMENTAIRE */}
       <td className="p-3 max-w-[250px]">
-        <CommentCell text={reservation.commentaire} />
+        <CommentCell
+          text={
+            reservation.commentaire
+          }
+        />
       </td>
 
-      {/* Actions */}
+      {/* ACTIONS */}
       <td className="p-3 flex gap-2">
-
         <button
           disabled={cancelled}
-          onClick={() => setEditing(true)}
-          className={`px-3 py-1 rounded text-sm border transition
-            ${
-              cancelled
-                ? "bg-stone-200 text-stone-500 cursor-not-allowed"
-                : "bg-white hover:bg-stone-100"
-            }`}
+          onClick={() =>
+            setEditing(true)
+          }
+          className={`px-3 py-1 rounded text-sm border transition ${
+            cancelled
+              ? "bg-stone-200 text-stone-500 cursor-not-allowed"
+              : "bg-white hover:bg-stone-100"
+          }`}
         >
           Modifier
         </button>
@@ -222,6 +298,18 @@ export default function EditableRow({ reservation }: any) {
           id={reservation.id}
           cancelled={cancelled}
         />
+
+        <button
+          disabled={cancelled}
+          onClick={resendEmail}
+          className={`px-3 py-1 rounded text-sm transition ${
+            cancelled
+              ? "bg-stone-200 text-stone-500 cursor-not-allowed"
+              : "bg-stone-900 text-white hover:bg-blue-700"
+          }`}
+        >
+          📧 Mail
+        </button>
 
       </td>
     </tr>
