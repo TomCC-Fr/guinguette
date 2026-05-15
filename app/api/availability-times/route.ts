@@ -16,7 +16,7 @@ function generateTimes(start: string, end: string) {
         .toString()
         .padStart(2, "0")}`
     );
-    m += 15;
+    m += 30;
     if (m === 60) {
       m = 0;
       h++;
@@ -40,7 +40,7 @@ export async function GET(req: Request) {
 
   const times =
     service === "MIDI"
-      ? generateTimes("11:45", "13:00")
+      ? generateTimes("12:00", "13:30")
       : generateTimes("19:00", "21:00");
 
   const slots = [];
