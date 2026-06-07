@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronDown } from "lucide-react";
 
 export default function AddReservationForm({
@@ -10,8 +10,13 @@ export default function AddReservationForm({
   defaultDate: string;
 }) {
   const router = useRouter();
+
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const [timeSlots, setTimeSlots] = useState<
+    { time: string; available: boolean }[]
+  >([]);
 
   const [form, setForm] = useState({
     nom: "",
@@ -19,11 +24,45 @@ export default function AddReservationForm({
     telephone: "",
     date: defaultDate,
     service: "SOIR",
-    heure: "19:30",
+    heure: "",
     personnes: 2,
     commentaire: "",
   });
 
+  // =========================
+  // CHARGEMENT CRÉNEAUX
+  // =========================
+  useEffect(() => {
+    if (!form.date || !form.service) {
+      setTimeSlots([]);
+      return;
+    }
+
+    async function fetchTimes() {
+      const res = await fetch(
+        `/api/availability-times?date=${form.date}&service=${form.service}`
+      );
+
+      if (!res.ok) return;
+
+      const data = await res.json();
+
+      setTimeSlots(data);
+
+      if (data.length > 0) {
+        setForm((prev) => ({
+          ...prev,
+          heure: data[0].time,
+        }));
+      }
+    }
+
+    fetchTimes();
+  }, [form.date, form.service]);
+
+  // =========================
+  // SUBMIT
+  // =========================
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
@@ -46,14 +85,13 @@ export default function AddReservationForm({
       return;
     }
 
-    // reset
     setForm({
       nom: "",
       email: "",
       telephone: "",
       date: defaultDate,
       service: "SOIR",
-      heure: "19:30",
+      heure: "",
       personnes: 2,
       commentaire: "",
     });
@@ -67,7 +105,6 @@ export default function AddReservationForm({
 
   return (
     <div className="bg-stone-50 rounded-2xl p-6">
-
       <button
         type="button"
         onClick={() => setOpen(!open)}
@@ -87,7 +124,6 @@ export default function AddReservationForm({
       {open && (
         <div className="mt-6">
           <form onSubmit={handleSubmit} className="space-y-4">
-
             <div className="grid md:grid-cols-3 gap-4">
 
               <input
@@ -115,7 +151,10 @@ export default function AddReservationForm({
                 value={form.telephone}
                 className="border rounded px-3 py-2"
                 onChange={(e) =>
-                  setForm({ ...form, telephone: e.target.value })
+                  setForm({
+                    ...form,
+                    telephone: e.target.value,
+                  })
                 }
               />
 
@@ -124,34 +163,49 @@ export default function AddReservationForm({
                 value={form.date}
                 className="border rounded px-3 py-2"
                 onChange={(e) =>
-                  setForm({ ...form, date: e.target.value })
+                  setForm({
+                    ...form,
+                    date: e.target.value,
+                  })
                 }
               />
 
               <select
                 className="border rounded px-3 py-2"
                 value={form.service}
-                onChange={(e) => {
-                  const newService = e.target.value;
+                onChange={(e) =>
                   setForm({
                     ...form,
-                    service: newService,
-                    heure: newService === "MIDI" ? "12:30" : "19:30",
-                  });
-                }}
+                    service: e.target.value,
+                  })
+                }
               >
                 <option value="MIDI">MIDI</option>
                 <option value="SOIR">SOIR</option>
               </select>
 
-              <input
-                type="time"
+              <select
                 value={form.heure}
                 className="border rounded px-3 py-2"
                 onChange={(e) =>
-                  setForm({ ...form, heure: e.target.value })
+                  setForm({
+                    ...form,
+                    heure: e.target.value,
+                  })
                 }
-              />
+              >
+                {timeSlots.map((slot) => (
+                  <option
+                    key={slot.time}
+                    value={slot.time}
+                    disabled={!slot.available}
+                  >
+                    {slot.available
+                      ? slot.time
+                      : `❌ ${slot.time} (complet)`}
+                  </option>
+                ))}
+              </select>
 
               <input
                 type="number"
@@ -165,15 +219,16 @@ export default function AddReservationForm({
                   })
                 }
               />
-
             </div>
 
-            {/* ✅ COMMENTAIRE CORRIGÉ */}
             <textarea
               placeholder="Commentaire (allergies, anniversaire...)"
               value={form.commentaire}
               onChange={(e) =>
-                setForm({ ...form, commentaire: e.target.value })
+                setForm({
+                  ...form,
+                  commentaire: e.target.value,
+                })
               }
               maxLength={300}
               rows={2}
@@ -186,11 +241,9 @@ export default function AddReservationForm({
             >
               {loading ? "Ajout..." : "Ajouter"}
             </button>
-
           </form>
         </div>
       )}
-
     </div>
   );
 }
