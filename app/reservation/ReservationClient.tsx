@@ -32,6 +32,7 @@ export default function ReservationClient({
 
   // ✅ NOUVEAU
   const [isServiceFull, setIsServiceFull] = useState(false);
+  const [sameDayClosed, setSameDayClosed] = useState(false);
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -45,6 +46,48 @@ export default function ReservationClient({
     if (date) setSelectedDate(date);
     if (serviceParam) setService(serviceParam);
   }, [searchParams]);
+
+  // =========================
+  // Limite réservation même jour
+  // =========================
+  
+  useEffect(() => {
+    if (!selectedDate || !service) {
+      setSameDayClosed(false);
+      return;
+    }
+
+    const now = new Date();
+
+    // Heure locale HH:MM
+    const currentMinutes =
+      now.getHours() * 60 + now.getMinutes();
+
+    const today = new Date().toISOString().split("T")[0];
+
+    if (selectedDate !== today) {
+      setSameDayClosed(false);
+      return;
+    }
+
+    if (
+      service === "MIDI" &&
+      currentMinutes >= 11 * 60
+    ) {
+      setSameDayClosed(true);
+      return;
+    }
+
+    if (
+      service === "SOIR" &&
+      currentMinutes >= 17 * 60
+    ) {
+      setSameDayClosed(true);
+      return;
+    }
+
+    setSameDayClosed(false);
+  }, [selectedDate, service]);
 
   // =========================
   // 🔎 AVAILABILITY
@@ -258,10 +301,21 @@ export default function ReservationClient({
             </p>
           )}
 
+          {/* 🔴 MESSAGE RESERVATION CLOSE */}
+          {sameDayClosed && (
+            <p className="text-amber-700 text-sm">
+              Les réservations en ligne pour ce service
+              sont désormais closes.
+              <br />
+              Merci de nous contacter au
+              <strong> 02 41 93 39 00</strong>.
+            </p>
+          )}
+
           <select
             value={selectedTime}
             onChange={(e) => setSelectedTime(e.target.value)}
-            disabled={!service || isServiceFull}
+            disabled={!service || isServiceFull || sameDayClosed}
             required
             className="border-b py-2 w-full"
           >
@@ -304,7 +358,11 @@ export default function ReservationClient({
           />
 
           <button
-            disabled={loading || isServiceFull}
+            disabled={
+              loading ||
+              isServiceFull ||
+              sameDayClosed
+            }
             className="bg-black text-white px-6 py-3 rounded-full w-full disabled:opacity-50"
           >
             {loading ? "Envoi..." : "Réserver"}
