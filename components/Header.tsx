@@ -1,3 +1,4 @@
+// components/Header.tsx
 "use client";
 
 import Link from "next/link";
@@ -9,145 +10,164 @@ export default function Header() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
+  // Lien nav standard — souligné vert sauge si actif
   function linkClass(path: string) {
-    return `px-4 py-2 rounded-xl transition ${
-      pathname === path
-        ? "bg-stone-900/90 text-white"
-        : "hover:bg-stone-100"
-    }`;
+    const isActive = pathname === path;
+    return [
+      "relative px-1 py-2 text-sm font-body font-medium tracking-wide transition-colors duration-200",
+      isActive
+        ? "text-white after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-[oklch(0.58_0.13_148)] after:rounded-full"
+        : "text-stone-400 hover:text-white",
+    ].join(" ");
   }
 
   return (
-    <header className="w-full bg-white border-b border-stone-200 sticky top-0 z-50">
-      <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <header className="w-full bg-[oklch(0.10_0.00_0)] border-b border-white/10 sticky top-0 z-50">
+      <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between gap-8">
 
-        {/* Logo */}
+        {/* ── Logo ── */}
         <Link
           href="/"
-          className="text-lg font-semibold"
           onClick={() => setOpen(false)}
+          className="font-display text-base md:text-lg font-semibold tracking-widest uppercase text-white whitespace-nowrap hover:text-[oklch(0.58_0.13_148)] transition-colors duration-200"
         >
           La guinguette du Père Chapuis
         </Link>
 
-        {/* Desktop navigation */}
-        <nav className="hidden md:flex items-center gap-2 text-sm">
+        {/* ── Navigation desktop ── */}
+        <nav className="hidden md:flex items-center gap-6">
 
           <Link href="/" className={linkClass("/")}>
             Accueil
           </Link>
 
-          {/* RESERVATION */}
-          {FEATURES.RESERVATION && (
-            <Link href="/reservation" className={linkClass("/reservation")}>
-              Réserver
-            </Link>
-          )}
-
-          {/* PLANNING */}
           {FEATURES.PLANNING && (
             <Link href="/planning" className={linkClass("/planning")}>
-              Evenements
+              Événements
             </Link>
           )}
 
-          {/* MENU */}
           {FEATURES.MENU && (
             <Link href="/menu" className={linkClass("/menu")}>
               La carte
             </Link>
           )}
 
-          {/* EQUIPE */}
           {FEATURES.EQUIPE && (
             <Link href="/equipe" className={linkClass("/equipe")}>
               Équipe
             </Link>
           )}
 
-          {/* INFOS */}
           {FEATURES.INFOS && (
             <Link href="/infos" className={linkClass("/infos")}>
               Infos
             </Link>
           )}
 
-        </nav>
-
-        {/* Burger mobile */}
-        <button
-          onClick={() => setOpen(!open)}
-          className="md:hidden text-2xl px-2"
-        >
-          {open ? "✕" : "☰"}
-        </button>
-
-      </div>
-
-      {/* Mobile menu */}
-      {open && (
-        <div className="md:hidden border-t border-stone-200 bg-white px-6 py-6 flex flex-col gap-3 text-base">
-
-          <Link
-            href="/"
-            className={linkClass("/")}
-            onClick={() => setOpen(false)}
-          >
-            Accueil
-          </Link>
-
+          {/* CTA Réserver — toujours visible en dernier */}
           {FEATURES.RESERVATION && (
             <Link
               href="/reservation"
-              className={linkClass("/reservation")}
-              onClick={() => setOpen(false)}
+              className="ml-2 inline-flex items-center px-5 py-2 rounded-full bg-[oklch(0.58_0.13_148)] text-white text-sm font-body font-semibold tracking-wide hover:bg-[oklch(0.52_0.13_148)] active:scale-95 transition-all duration-200"
             >
               Réserver
             </Link>
           )}
 
-          {FEATURES.PLANNING && (
-            <Link
-              href="/planning"
-              className={linkClass("/planning")}
-              onClick={() => setOpen(false)}
-            >
-              Evenements
-            </Link>
-          )}
+        </nav>
 
-          {FEATURES.MENU && (
-            <Link
-              href="/menu"
-              className={linkClass("/menu")}
-              onClick={() => setOpen(false)}
-            >
-              La carte
-            </Link>
-          )}
+        {/* ── Burger mobile ── */}
+        <button
+          onClick={() => setOpen(!open)}
+          aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
+          className="md:hidden flex flex-col justify-center items-center w-9 h-9 gap-[5px] group"
+        >
+          <span
+            className={`block h-[2px] w-6 bg-white rounded-full transition-all duration-300 origin-center ${
+              open ? "rotate-45 translate-y-[7px]" : ""
+            }`}
+          />
+          <span
+            className={`block h-[2px] w-6 bg-white rounded-full transition-all duration-300 ${
+              open ? "opacity-0 scale-x-0" : ""
+            }`}
+          />
+          <span
+            className={`block h-[2px] w-6 bg-white rounded-full transition-all duration-300 origin-center ${
+              open ? "-rotate-45 -translate-y-[7px]" : ""
+            }`}
+          />
+        </button>
 
-          {FEATURES.EQUIPE && (
-            <Link
-              href="/equipe"
-              className={linkClass("/equipe")}
-              onClick={() => setOpen(false)}
-            >
-              Équipe
-            </Link>
-          )}
+      </div>
 
-          {FEATURES.INFOS && (
-            <Link
-              href="/infos"
-              className={linkClass("/infos")}
-              onClick={() => setOpen(false)}
-            >
-              Infos
-            </Link>
-          )}
+      {/* ── Menu mobile plein écran ── */}
+      <div
+        className={`md:hidden fixed inset-0 top-[73px] bg-[oklch(0.10_0.00_0)] z-40 flex flex-col px-8 py-10 gap-2 transition-all duration-300 ${
+          open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+      >
+        <Link
+          href="/"
+          onClick={() => setOpen(false)}
+          className="font-display text-3xl uppercase tracking-wider text-white py-4 border-b border-white/10 hover:text-[oklch(0.58_0.13_148)] transition-colors"
+        >
+          Accueil
+        </Link>
 
-        </div>
-      )}
+        {FEATURES.PLANNING && (
+          <Link
+            href="/planning"
+            onClick={() => setOpen(false)}
+            className="font-display text-3xl uppercase tracking-wider text-white py-4 border-b border-white/10 hover:text-[oklch(0.58_0.13_148)] transition-colors"
+          >
+            Événements
+          </Link>
+        )}
+
+        {FEATURES.MENU && (
+          <Link
+            href="/menu"
+            onClick={() => setOpen(false)}
+            className="font-display text-3xl uppercase tracking-wider text-white py-4 border-b border-white/10 hover:text-[oklch(0.58_0.13_148)] transition-colors"
+          >
+            La carte
+          </Link>
+        )}
+
+        {FEATURES.EQUIPE && (
+          <Link
+            href="/equipe"
+            onClick={() => setOpen(false)}
+            className="font-display text-3xl uppercase tracking-wider text-white py-4 border-b border-white/10 hover:text-[oklch(0.58_0.13_148)] transition-colors"
+          >
+            Équipe
+          </Link>
+        )}
+
+        {FEATURES.INFOS && (
+          <Link
+            href="/infos"
+            onClick={() => setOpen(false)}
+            className="font-display text-3xl uppercase tracking-wider text-white py-4 border-b border-white/10 hover:text-[oklch(0.58_0.13_148)] transition-colors"
+          >
+            Infos
+          </Link>
+        )}
+
+        {/* CTA Réserver mobile */}
+        {FEATURES.RESERVATION && (
+          <Link
+            href="/reservation"
+            onClick={() => setOpen(false)}
+            className="mt-6 inline-flex items-center justify-center px-6 py-4 rounded-full bg-[oklch(0.58_0.13_148)] text-white font-display text-xl uppercase tracking-wider hover:bg-[oklch(0.52_0.13_148)] active:scale-95 transition-all duration-200"
+          >
+            Réserver
+          </Link>
+        )}
+      </div>
+
     </header>
   );
 }

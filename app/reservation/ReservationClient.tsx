@@ -35,6 +35,11 @@ export default function ReservationClient({
   const [sameDayClosed, setSameDayClosed] = useState(false);
 
   const today = new Date().toISOString().split("T")[0];
+  
+  const isFridayDinner =
+  service === "SOIR" &&
+  selectedDate &&
+  new Date(selectedDate).getDay() === 5;
 
   // =========================
   // 🔥 SYNC URL
@@ -299,6 +304,24 @@ export default function ReservationClient({
               Réservation en ligne non disponible pour ce service,
               veuillez nous contacter au 02 41 93 39 00
             </p>
+          )}
+
+          {isFridayDinner && (
+          <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+            <p className="font-semibold mb-2">
+              🍽️ Soirée Moules-Frites
+            </p>
+
+            <p>
+              Le vendredi soir, la guinguette vous propose sa traditionnelle
+              soirée <strong>Moules-Frites</strong>.
+            </p>
+
+            <p className="mt-2">
+              Des alternatives sont bien entendu disponibles pour les personnes
+              qui ne souhaitent pas manger de moules.
+            </p>
+          </div>
           )}
 
           {/* 🔴 MESSAGE RESERVATION CLOSE */}
