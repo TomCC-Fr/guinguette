@@ -238,6 +238,7 @@ export async function POST(request: Request) {
 
         <p>🍷 Nous avons hâte de vous accueillir à la guinguette !</p>
         <p>Nous vous prions de respecter l'heure d'arrivée afin de vous garantir le meilleur service possible.</p>
+        <p>Nous nous réservons le droit de donner votre table au-delà de 20 min de retard.</p>
         <p>
           Pour toute modification, veuillez nous contacter au ${CONTACT_PHONE}.
         </p>

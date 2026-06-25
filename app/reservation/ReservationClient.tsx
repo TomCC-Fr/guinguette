@@ -36,6 +36,10 @@ export default function ReservationClient({
 
   const today = new Date().toISOString().split("T")[0];
   
+const showFestivalMessage =
+  selectedDate >= "2026-06-26" &&
+  selectedDate <= "2026-06-28";
+
   const isFridayDinner =
   service === "SOIR" &&
   selectedDate &&
@@ -306,6 +310,24 @@ export default function ReservationClient({
             </p>
           )}
 
+          {showFestivalMessage && (
+            <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-amber-900">
+              <p className="font-semibold text-lg mb-2">
+                📢 Information importante
+              </p>
+
+              <p>
+                En raison des fortes chaleurs récentes et une avarie de matériel,
+                <strong> pas de soirée moules-frites et la carte est exceptionnellement remaniée ce week-end </strong> mais nous conservons plusieurs choix à la carte.
+              </p>
+
+              <p className="mt-2">
+                Pour en savoir plus sur le menu qui vous est proposé, n'hésitez pas
+                à nous contacter au <strong>02 41 93 39 00</strong>.
+              </p>
+            </div>
+          )}
+
           {isFridayDinner && (
           <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
             <p className="font-semibold mb-2">
@@ -318,8 +340,8 @@ export default function ReservationClient({
             </p>
 
             <p className="mt-2">
-              Des alternatives sont bien entendu disponibles pour les personnes
-              qui ne souhaitent pas manger de moules.
+              Une alternative est bien entendu disponible pour les personnes
+              qui ne souhaitent pas manger de moules (bavette ou plat végétarien).
             </p>
           </div>
           )}
