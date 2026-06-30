@@ -14,8 +14,13 @@ export default async function MenuPage({
 }) {
   const params = await searchParams;
 
-  const selectedType =
-    params?.type === "DRINK" ? "DRINK" : "FOOD";
+  const allowedTypes = ["FOOD", "WINE", "DRINK"];
+
+  const selectedType = allowedTypes.includes(
+    params?.type || ""
+  )
+    ? params!.type!
+    : "FOOD";
 
   const supabase = supabasePublic;
 
@@ -53,7 +58,7 @@ export default async function MenuPage({
       <div className="max-w-6xl mx-auto space-y-14">
 
         {/* SWITCH */}
-        <div className="flex justify-center gap-3">
+        <div className="flex justify-center gap-3 flex-wrap">
 
           <Link
             href="/menu?type=FOOD"
@@ -69,6 +74,19 @@ export default async function MenuPage({
           </Link>
 
           <Link
+            href="/menu?type=WINE"
+            className={`px-5 py-1.5 text-sm rounded-full border transition
+              ${
+                selectedType === "WINE"
+                  ? "bg-stone-900 text-white border-stone-900"
+                  : "border-stone-300 hover:border-stone-500"
+              }
+            `}
+          >
+            🍷 Vins
+          </Link>
+
+          <Link
             href="/menu?type=DRINK"
             className={`px-5 py-1.5 text-sm rounded-full border transition
               ${
@@ -78,7 +96,7 @@ export default async function MenuPage({
               }
             `}
           >
-            🍷 Boissons
+            🍺 Boissons
           </Link>
 
         </div>
