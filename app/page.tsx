@@ -44,11 +44,21 @@ export default async function HomePage() {
 
         <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-6">
 
-          {/* 👉 ICI tu pourras remplacer par ton logo plus tard */}
+          {/* 👉 ICI tu pourras remplacer par ton logo plus tard 
           <h1 className="text-3xl md:text-5xl font-semibold mb-6">
             La guinguette du Père Chapuis
-          </h1>
-
+          </h1>*/}
+          <div className="mb-6 flex justify-center">
+            <Image
+              src="/guinguette/logo_simplifie_inverse.png"
+              alt="La Guinguette du Père Chapuis"
+              width={500}
+              height={200}
+              className="w-auto h-32 md:h-44"
+              priority
+            />
+          </div>
+          
           <p className="text-base md:text-lg mb-8 max-w-xl">
             On met l'accent sur la qualité dans le verre et dans l'assiette.
           </p>
