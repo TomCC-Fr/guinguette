@@ -31,6 +31,9 @@ export default function ReservationClient({
   const isFridayDinner =
     service === "SOIR" && selectedDate && new Date(selectedDate).getDay() === 5;
 
+  const isLastSeasonDinner =
+    service === "SOIR" && selectedDate === "2026-09-19";
+
   useEffect(() => {
     const date = searchParams.get("date");
     const serviceParam = searchParams.get("service");
@@ -231,6 +234,53 @@ export default function ReservationClient({
             </div>
           )}
 
+          {isLastSeasonDinner && (
+            <div
+              className="rounded-2xl px-5 py-6 space-y-3 text-center"
+              style={{
+                backgroundColor: "oklch(0.93 0.06 80)",
+                border: "2px solid oklch(0.58 0.13 148)",
+              }}
+            >
+              <p
+                className="font-display text-lg md:text-xl uppercase tracking-wider font-bold"
+                style={{ color: "oklch(0.35 0.10 148)" }}
+              >
+                🎉 Dernière soirée de la saison 2026
+              </p>
+
+              <p
+                className="font-body text-base font-semibold"
+                style={{ color: "oklch(0.25 0.05 60)" }}
+              >
+                Samedi 19 septembre au soir
+              </p>
+
+              <div
+                className="pt-2 text-lg md:text-xl font-semibold"
+                style={{ color: "oklch(0.35 0.10 148)" }}
+              >
+                🍛 Rougail-Saucisses
+              </div>
+
+              <p
+                className="font-body text-sm leading-relaxed"
+                style={{ color: "oklch(0.40 0.05 60)" }}
+              >
+                Pour cette dernière soirée, un <strong>plat unique Rougail-Saucisses</strong> vous sera proposé.
+                <br />
+                <strong>Aucune réservation n'est nécessaire.</strong>
+              </p>
+
+              <p
+                className="font-body text-sm font-semibold pt-1"
+                style={{ color: "oklch(0.35 0.10 148)" }}
+              >
+                Venez simplement profiter de cette dernière soirée avec nous ! 🍻
+              </p>
+            </div>
+          )}
+          
           {isFridayDinner && (
             <div className="rounded-xl px-4 py-4 space-y-2"
               style={{ backgroundColor: "oklch(0.95 0.04 148)", border: "1px solid oklch(0.85 0.07 148)" }}>
