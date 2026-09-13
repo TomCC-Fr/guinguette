@@ -99,6 +99,11 @@ export default function ReservationClient({
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    if (isLastSeasonDinner) {
+      return;
+    }
+
     if (personnes > MAX_ONLINE) { alert("Pour les groupes de plus de 12 personnes, merci de nous appeler."); return; }
     if (isServiceFull) { alert("Service complet. Merci de nous contacter au 02 41 93 39 00."); return; }
     setLoading(true);
@@ -183,7 +188,10 @@ export default function ReservationClient({
               const isActive = service === s;
               return (
                 <button key={s} type="button" disabled={disabled}
-                  onClick={() => setService(s)}
+                  onClick={() => {
+                    setService(s);
+                    setSelectedTime("");
+                  }}
                   className="px-6 py-2.5 rounded-full font-body text-sm font-semibold tracking-wide transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
                   style={{
                     backgroundColor: isActive ? "oklch(0.58 0.13 148)" : "oklch(0.97 0.008 80)",
@@ -281,7 +289,7 @@ export default function ReservationClient({
             </div>
           )}
           
-          {isFridayDinner && (
+          {/*{isFridayDinner && (
             <div className="rounded-xl px-4 py-4 space-y-2"
               style={{ backgroundColor: "oklch(0.95 0.04 148)", border: "1px solid oklch(0.85 0.07 148)" }}>
               <p className="font-display text-sm uppercase tracking-wide"
@@ -293,46 +301,50 @@ export default function ReservationClient({
                 <strong>Moules-Frites</strong>. Une alternative est disponible (bavette ou plat végétarien).
               </p>
             </div>
-          )}
+          )}*/}
 
-          <select value={selectedTime} onChange={(e) => setSelectedTime(e.target.value)}
-            disabled={!service || isServiceFull || sameDayClosed}
-            required className={inputClass + " cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"}
-            style={inputStyle}>
-            <option value="">Choisir une heure</option>
-            {timeSlots.map((slot) => (
-              <option key={slot.time} value={slot.time} disabled={!slot.available}>
-                {slot.available ? slot.time : `❌ ${slot.time} (complet)`}
-              </option>
-            ))}
-          </select>
+          {!isLastSeasonDinner && (
+            <>
+              <select value={selectedTime} onChange={(e) => setSelectedTime(e.target.value)}
+                disabled={!service || isServiceFull || sameDayClosed}
+                required className={inputClass + " cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"}
+                style={inputStyle}>
+                <option value="">Choisir une heure</option>
+                {timeSlots.map((slot) => (
+                  <option key={slot.time} value={slot.time} disabled={!slot.available}>
+                    {slot.available ? slot.time : `❌ ${slot.time} (complet)`}
+                  </option>
+                ))}
+              </select>
 
-          <div className="space-y-2">
-            <input type="number" name="personnes" min={1} max={20} value={personnes}
-              onChange={(e) => setPersonnes(Number(e.target.value))}
-              required placeholder="Nombre de personnes"
-              className={inputClass} style={inputStyle} />
-            {personnes > MAX_ONLINE && (
-              <div className="flex items-start gap-3 rounded-xl px-4 py-3"
-                style={{ backgroundColor: "oklch(0.97 0.06 80)", border: "1px solid oklch(0.88 0.08 75)" }}>
-                <p className="font-body text-sm" style={{ color: "oklch(0.40 0.10 65)" }}>
-                  👥 Groupes de plus de 12 —{" "}
-                  <a href="tel:+33241933900" className="underline">02 41 93 39 00</a>
-                </p>
+              <div className="space-y-2">
+                <input type="number" name="personnes" min={1} max={20} value={personnes}
+                  onChange={(e) => setPersonnes(Number(e.target.value))}
+                  required placeholder="Nombre de personnes"
+                  className={inputClass} style={inputStyle} />
+                {personnes > MAX_ONLINE && (
+                  <div className="flex items-start gap-3 rounded-xl px-4 py-3"
+                    style={{ backgroundColor: "oklch(0.97 0.06 80)", border: "1px solid oklch(0.88 0.08 75)" }}>
+                    <p className="font-body text-sm" style={{ color: "oklch(0.40 0.10 65)" }}>
+                      👥 Groupes de plus de 12 —{" "}
+                      <a href="tel:+33241933900" className="underline">02 41 93 39 00</a>
+                    </p>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
 
-          <textarea name="commentaire" placeholder="Commentaire (allergies, occasions spéciales…)"
-            rows={3}
-            className={inputClass + " resize-none"} style={inputStyle} />
+              <textarea name="commentaire" placeholder="Commentaire (allergies, occasions spéciales…)"
+                rows={3}
+                className={inputClass + " resize-none"} style={inputStyle} />
 
-          <button type="submit"
-            disabled={loading || isServiceFull || sameDayClosed}
-            className="w-full py-4 rounded-full text-white font-body font-semibold text-sm tracking-wide active:scale-[0.98] transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100"
-            style={{ backgroundColor: "oklch(0.58 0.13 148)" }}>
-            {loading ? "Envoi en cours…" : "Confirmer ma réservation"}
-          </button>
+              <button type="submit"
+                disabled={loading || isServiceFull || sameDayClosed}
+                className="w-full py-4 rounded-full text-white font-body font-semibold text-sm tracking-wide active:scale-[0.98] transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100"
+                style={{ backgroundColor: "oklch(0.58 0.13 148)" }}>
+                {loading ? "Envoi en cours…" : "Confirmer ma réservation"}
+              </button>
+            </>
+          )}
 
         </form>
 
